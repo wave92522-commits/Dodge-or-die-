@@ -1,7 +1,14 @@
 --==================================================================
--- 🏃 DODGE HUB v5.3 — Оптимизированная версия
+-- 🏃 DODGE HUB v1.2 — Dodge or Die ONLY
 -- RightCtrl hides, — minimizes, ✕ closes.
 --==================================================================
+
+-- Проверка на плейс
+if game.PlaceId ~= 131794278839305 then
+    print("[Dodge Hub] Wrong game! This script only works in Dodge or Die.")
+    return
+end
+
 if _G.DodgeHub and _G.DodgeHub.Destroy then pcall(_G.DodgeHub.Destroy) end
 
 local Players = game:GetService("Players")
@@ -28,25 +35,94 @@ local S = {
     noclip = false,
     hitboxview = false,
     aura = false,
+    spinbot = false,
     ballpet = false,
     perfectring = false,
     reset = false,
+    rainbowesp = false,
+    musicplayer = false,
     jumpVal = 100,
     speedVal = 50,
     freezeStr = 2,
     tpY = 80,
     perfectRange = 10,
     petRange = 8,
-    auraText = "John Doe"
+    auraText = "John Doe",
+    musicID = "rbxassetid://1842801835",
+    spinSpeed = 10,
+    theme = "Blood"
 }
 
-local ACCENT = Color3.fromRGB(255, 80, 80)
-local ACCENT2 = Color3.fromRGB(255, 160, 60)
-local BG = Color3.fromRGB(18, 19, 24)
-local BG2 = Color3.fromRGB(26, 28, 35)
-local BG3 = Color3.fromRGB(34, 37, 46)
-local TXT = Color3.fromRGB(236, 238, 243)
-local SUB = Color3.fromRGB(150, 155, 168)
+-- ТЕМЫ
+local Themes = {
+    Blood = {
+        ACCENT = Color3.fromRGB(255, 0, 0),
+        ACCENT2 = Color3.fromRGB(0, 0, 0),
+        BG = Color3.fromRGB(20, 5, 5),
+        BG2 = Color3.fromRGB(30, 8, 8),
+        BG3 = Color3.fromRGB(45, 12, 12),
+        TXT = Color3.fromRGB(255, 240, 240),
+        SUB = Color3.fromRGB(200, 150, 150),
+        Stroke = Color3.fromRGB(120, 15, 15),
+        Name = "Blood"
+    },
+    Ocean = {
+        ACCENT = Color3.fromRGB(0, 100, 255),
+        ACCENT2 = Color3.fromRGB(0, 0, 50),
+        BG = Color3.fromRGB(5, 8, 20),
+        BG2 = Color3.fromRGB(8, 12, 30),
+        BG3 = Color3.fromRGB(12, 18, 45),
+        TXT = Color3.fromRGB(235, 240, 255),
+        SUB = Color3.fromRGB(140, 160, 200),
+        Stroke = Color3.fromRGB(15, 40, 120),
+        Name = "Ocean"
+    },
+    Midnight = {
+        ACCENT = Color3.fromRGB(120, 0, 255),
+        ACCENT2 = Color3.fromRGB(10, 0, 30),
+        BG = Color3.fromRGB(8, 5, 20),
+        BG2 = Color3.fromRGB(14, 8, 30),
+        BG3 = Color3.fromRGB(22, 12, 45),
+        TXT = Color3.fromRGB(240, 235, 255),
+        SUB = Color3.fromRGB(160, 140, 200),
+        Stroke = Color3.fromRGB(40, 15, 120),
+        Name = "Midnight"
+    },
+    Forest = {
+        ACCENT = Color3.fromRGB(0, 200, 50),
+        ACCENT2 = Color3.fromRGB(0, 20, 0),
+        BG = Color3.fromRGB(5, 15, 5),
+        BG2 = Color3.fromRGB(8, 22, 8),
+        BG3 = Color3.fromRGB(12, 32, 12),
+        TXT = Color3.fromRGB(235, 255, 235),
+        SUB = Color3.fromRGB(140, 200, 140),
+        Stroke = Color3.fromRGB(15, 80, 15),
+        Name = "Forest"
+    },
+    Sunset = {
+        ACCENT = Color3.fromRGB(255, 120, 0),
+        ACCENT2 = Color3.fromRGB(30, 5, 0),
+        BG = Color3.fromRGB(18, 8, 3),
+        BG2 = Color3.fromRGB(28, 12, 5),
+        BG3 = Color3.fromRGB(42, 18, 8),
+        TXT = Color3.fromRGB(255, 245, 235),
+        SUB = Color3.fromRGB(200, 160, 120),
+        Stroke = Color3.fromRGB(100, 30, 5),
+        Name = "Sunset"
+    }
+}
+
+-- Применяем тему Blood по умолчанию
+local currentTheme = Themes[S.theme]
+
+-- Обновление глобальных переменных цветов
+local ACCENT = currentTheme.ACCENT
+local ACCENT2 = currentTheme.ACCENT2
+local BG = currentTheme.BG
+local BG2 = currentTheme.BG2
+local BG3 = currentTheme.BG3
+local TXT = currentTheme.TXT
+local SUB = currentTheme.SUB
 
 local function corner(p, r) local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, r) c.Parent = p return c end
 local function pad(p, t, b, l, r) local u = Instance.new("UIPadding") u.PaddingTop = UDim.new(0, t) u.PaddingBottom = UDim.new(0, b) u.PaddingLeft = UDim.new(0, l) u.PaddingRight = UDim.new(0, r) u.Parent = p return u end
@@ -71,9 +147,9 @@ main.Parent = gui
 corner(main, 16)
 
 local mst = Instance.new("UIStroke", main)
-mst.Color = Color3.fromRGB(60, 64, 76)
-mst.Thickness = 1
-mst.Transparency = 0.2
+mst.Color = currentTheme.Stroke
+mst.Thickness = 1.5
+mst.Transparency = 0
 
 local shadow = Instance.new("ImageLabel")
 shadow.BackgroundTransparency = 1
@@ -116,28 +192,29 @@ titleC.BackgroundTransparency = 1
 titleC.Font = Enum.Font.GothamBold
 titleC.TextSize = 19
 titleC.TextColor3 = TXT
-titleC.Text = "Dodge Hub v5.3"
+titleC.Text = "Dodge Hub v1.2"
 titleC.TextXAlignment = Enum.TextXAlignment.Left
 titleC.Parent = header
-gradient(titleC, ACCENT2, ACCENT, 0)
+gradient(titleC, ACCENT, ACCENT2, 0)
 
 local byLabel = Instance.new("TextLabel")
-byLabel.Size = UDim2.fromOffset(100, 12)
-byLabel.Position = UDim2.fromOffset(58, 30)
+byLabel.Size = UDim2.fromOffset(100, 16)
+byLabel.Position = UDim2.fromOffset(58, 29)
 byLabel.BackgroundTransparency = 1
-byLabel.Font = Enum.Font.GothamMedium
-byLabel.TextSize = 10
-byLabel.TextColor3 = ACCENT2
-byLabel.Text = "by Ender01"
+byLabel.Font = Enum.Font.GothamBlack
+byLabel.TextSize = 11
+byLabel.TextColor3 = TXT
+byLabel.Text = "by SM1LER"
 byLabel.TextXAlignment = Enum.TextXAlignment.Left
 byLabel.Parent = header
+gradient(byLabel, ACCENT, ACCENT2, 0)
 
 local statusL = Instance.new("TextLabel")
-statusL.Size = UDim2.fromOffset(280, 16)
-statusL.Position = UDim2.fromOffset(58, 42)
+statusL.Size = UDim2.fromOffset(280, 14)
+statusL.Position = UDim2.fromOffset(58, 44)
 statusL.BackgroundTransparency = 1
 statusL.Font = Enum.Font.GothamMedium
-statusL.TextSize = 11
+statusL.TextSize = 9
 statusL.TextColor3 = SUB
 statusL.Text = "🏟️ Dodge or Die"
 statusL.TextXAlignment = Enum.TextXAlignment.Left
@@ -277,9 +354,9 @@ local function makeToggle(page, label, desc, key, callback)
     corner(row, 10)
 
     local st = Instance.new("UIStroke", row)
-    st.Color = Color3.fromRGB(46, 49, 60)
+    st.Color = currentTheme.Stroke
     st.Thickness = 1
-    st.Transparency = 0.4
+    st.Transparency = 0.3
 
     local t = Instance.new("TextLabel")
     t.Size = UDim2.new(1, -70, 0, 18)
@@ -314,7 +391,7 @@ local function makeToggle(page, label, desc, key, callback)
     local knob = Instance.new("Frame")
     knob.Size = UDim2.fromOffset(18, 18)
     knob.Position = UDim2.fromOffset(3, 3)
-    knob.BackgroundColor3 = Color3.fromRGB(245, 246, 250)
+    knob.BackgroundColor3 = TXT
     knob.BorderSizePixel = 0
     knob.Parent = sw
     corner(knob, 9)
@@ -329,7 +406,7 @@ local function makeToggle(page, label, desc, key, callback)
         local on = S[key]
         TweenService:Create(sw, TweenInfo.new(0.18), { BackgroundColor3 = on and ACCENT or BG3 }):Play()
         TweenService:Create(knob, TweenInfo.new(0.18, Enum.EasingStyle.Back), { Position = on and UDim2.fromOffset(23, 3) or UDim2.fromOffset(3, 3) }):Play()
-        TweenService:Create(st, TweenInfo.new(0.18), { Color = on and ACCENT or Color3.fromRGB(46, 49, 60) }):Play()
+        TweenService:Create(st, TweenInfo.new(0.18), { Color = on and ACCENT or currentTheme.Stroke }):Play()
     end
 
     btn.MouseButton1Click:Connect(function()
@@ -545,6 +622,46 @@ local function sectionInfo(page, text)
     l.Parent = page
 end
 
+-- Функция обновления темы
+local function applyTheme(themeName)
+    S.theme = themeName
+    currentTheme = Themes[themeName]
+    
+    -- Обновляем глобальные переменные
+    ACCENT = currentTheme.ACCENT
+    ACCENT2 = currentTheme.ACCENT2
+    BG = currentTheme.BG
+    BG2 = currentTheme.BG2
+    BG3 = currentTheme.BG3
+    TXT = currentTheme.TXT
+    SUB = currentTheme.SUB
+    
+    -- Обновляем основные элементы
+    main.BackgroundColor3 = BG
+    mst.Color = currentTheme.Stroke
+    header.BackgroundColor3 = BG2
+    hfix.BackgroundColor3 = BG2
+    side.BackgroundColor3 = BG2
+    
+    -- Обновляем градиенты
+    gradient(titleC, ACCENT, ACCENT2, 0)
+    gradient(byLabel, ACCENT, ACCENT2, 0)
+    
+    -- Обновляем все UI элементы
+    for _, page in pairs(pages) do
+        for _, element in ipairs(page:GetChildren()) do
+            if element:IsA("Frame") and element.BackgroundColor3 ~= Color3.new(1,1,1) then
+                -- Обновляем строки
+            end
+            if element:IsA("TextLabel") then
+                if element.TextColor3 == TXT or element.TextColor3 == Color3.new() then
+                    -- пропускаем
+                end
+            end
+        end
+    end
+end
+
 --============================================================================
 -- TABS
 --============================================================================
@@ -555,9 +672,11 @@ makeToggle(pPlayer, "Jump Power", "Super high jumps", "jumppower")
 makeToggle(pPlayer, "Speed Boost", "Move faster than everyone", "speed")
 makeToggle(pPlayer, "Noclip", "Walk through walls & obstacles", "noclip")
 makeToggle(pPlayer, "AURA Title", "Floating text above your head", "aura")
+makeToggle(pPlayer, "SpinBot", "Spin around like crazy", "spinbot")
 makeTextbox(pPlayer, "AURA Text", "Customize your title text", "auraText", "John Doe")
 makeSlider(pPlayer, "Jump Height", "Set custom jump power", "jumpVal", 50, 300, 100)
 makeSlider(pPlayer, "Speed Value", "Set walk speed", "speedVal", 16, 200, 50)
+makeSlider(pPlayer, "Spin Speed", "Rotation speed", "spinSpeed", 1, 50, 10)
 makeToggle(pPlayer, "Reset", "Kill yourself to respawn", "reset", function(on)
     if on and lp.Character then
         lp.Character:BreakJoints()
@@ -583,9 +702,38 @@ makeSlider(pBall, "Pet Range", "How close ball must be to get trapped", "petRang
 
 local pVisuals = makeTab("Visuals", "👁️")
 makeToggle(pVisuals, "ESP Players", "See players through walls", "esp")
+makeToggle(pVisuals, "Rainbow ESP", "Rainbow colored highlights", "rainbowesp")
 makeToggle(pVisuals, "ESP Balls", "See balls through walls", "espballs")
 makeToggle(pVisuals, "Hitbox Viewer", "See god mode & freeze zones", "hitboxview")
 makeToggle(pVisuals, "Anti AFK", "Never get kicked for idling", "antiafk")
+
+local pFun = makeTab("Fun", "🎵")
+makeToggle(pFun, "Music Player", "Play music in background", "musicplayer")
+makeTextbox(pFun, "Music ID", "Roblox audio asset ID", "musicID", "rbxassetid://1842801835")
+
+--============================================================================
+-- SETTINGS TAB — темы
+--============================================================================
+local pSettings = makeTab("Settings", "⚙️")
+
+sectionInfo(pSettings, "<font color='#B48C8C'>Choose UI Theme</font>")
+
+for themeName, _ in pairs(Themes) do
+    makeToggle(pSettings, themeName, "Apply " .. themeName .. " theme", "theme_" .. themeName:lower(), function(on)
+        if on then
+            applyTheme(themeName)
+            -- Выключаем другие темы
+            for otherName, _ in pairs(Themes) do
+                if otherName ~= themeName then
+                    S["theme_" .. otherName:lower()] = false
+                end
+            end
+        end
+    end)
+end
+
+-- Включаем Blood по умолчанию
+S["theme_blood"] = true
 
 local stats = Instance.new("TextLabel")
 stats.Size = UDim2.new(1, 0, 0, 0)
@@ -599,7 +747,7 @@ stats.RichText = true
 stats.LayoutOrder = 99
 stats.Text = ""
 stats.Parent = pVisuals
-sectionInfo(pVisuals, "<font color='#8A8F9C'>RightCtrl hides the menu  •  drag the header to move</font>")
+sectionInfo(pVisuals, "<font color='#B48C8C'>RightCtrl hides the menu  •  drag the header to move</font>")
 
 selectTab("Player")
 
@@ -648,7 +796,6 @@ end)
 local alive = true
 local lastAutofarmPos = nil
 
--- КЭШИРОВАНИЕ ШАРОВ (обновляется раз в 0.2 сек, а не каждый кадр)
 local cachedBalls = {}
 local lastBallCache = 0
 
@@ -681,7 +828,28 @@ local function findNearestBall(pos)
 end
 
 --============================================================================
--- GOD MODE (оптимизирован)
+-- SPINBOT
+--============================================================================
+RunService.Heartbeat:Connect(function()
+    if not S.spinbot then return end
+    
+    local char = lp.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    
+    local currentCFrame = root.CFrame
+    local rotation = CFrame.Angles(0, math.rad(S.spinSpeed), 0)
+    root.CFrame = currentCFrame * rotation
+    
+    local hum = char:FindFirstChild("Humanoid")
+    if hum then
+        hum.AutoRotate = false
+    end
+end)
+
+--============================================================================
+-- GOD MODE
 --============================================================================
 local godPart
 RunService.Heartbeat:Connect(function()
@@ -711,7 +879,6 @@ RunService.Heartbeat:Connect(function()
     godPart.CFrame = root.CFrame
     godPart.Transparency = S.hitboxview and 0.6 or 1
 
-    -- Используем кэшированные шары
     local balls = getBalls()
     for _, ball in ipairs(balls) do
         if ball and ball.Parent then
@@ -727,12 +894,29 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --============================================================================
--- DELETE BALL V2 — отбрасывает шары на максимальной скорости
+-- DELETE BALL V2
 --============================================================================
 local deletePart
+
+local function createDeletePart()
+    if deletePart then deletePart:Destroy() end
+    deletePart = Instance.new("Part")
+    deletePart.Name = "DeleteShield"
+    deletePart.Size = Vector3.new(12, 12, 12)
+    deletePart.Transparency = S.hitboxview and 0.5 or 1
+    deletePart.Color = Color3.fromRGB(255, 0, 0)
+    deletePart.Material = Enum.Material.ForceField
+    deletePart.CanCollide = false
+    deletePart.Anchored = true
+    deletePart.Parent = workspace
+end
+
 RunService.Heartbeat:Connect(function()
     if not S.deleteball then
-        if deletePart then deletePart:Destroy(); deletePart = nil end
+        if deletePart then 
+            deletePart:Destroy()
+            deletePart = nil 
+        end
         return
     end
 
@@ -742,38 +926,35 @@ RunService.Heartbeat:Connect(function()
     if not root then return end
 
     if not deletePart or not deletePart.Parent then
-        if deletePart then deletePart:Destroy() end
-        deletePart = Instance.new("Part")
-        deletePart.Name = "DeleteShield"
-        deletePart.Size = Vector3.new(12, 12, 12)
-        deletePart.Transparency = S.hitboxview and 0.5 or 1
-        deletePart.Color = Color3.fromRGB(255, 0, 0)
-        deletePart.Material = Enum.Material.ForceField
-        deletePart.CanCollide = false
-        deletePart.Anchored = true
-        deletePart.Parent = workspace
+        createDeletePart()
     end
 
-    deletePart.CFrame = root.CFrame
-    deletePart.Transparency = S.hitboxview and 0.5 or 1
+    if deletePart and deletePart.Parent then
+        deletePart.CFrame = root.CFrame
+        deletePart.Transparency = S.hitboxview and 0.5 or 1
 
-    local balls = getBalls()
-    for _, ball in ipairs(balls) do
-        if ball and ball.Parent then
-            local dist = (ball.Position - deletePart.Position).Magnitude
-            if dist < 10 then
-                local dir = (ball.Position - deletePart.Position).Unit
-                if dir.Magnitude < 0.1 then dir = Vector3.new(math.random(-1, 1), 1, math.random(-1, 1)).Unit end
-                local maxSpeed = 500 -- максимальная скорость отброса
-                ball.Velocity = dir * maxSpeed
-                ball.AssemblyLinearVelocity = dir * maxSpeed
+        local balls = getBalls()
+        for _, ball in ipairs(balls) do
+            if ball and ball.Parent then
+                local dist = (ball.Position - deletePart.Position).Magnitude
+                if dist < 10 then
+                    local dir = (ball.Position - deletePart.Position).Unit
+                    if dir.Magnitude < 0.1 then 
+                        dir = Vector3.new(math.random(-1, 1), 1, math.random(-1, 1)).Unit 
+                    end
+                    local maxSpeed = 500
+                    ball.Velocity = dir * maxSpeed
+                    ball.AssemblyLinearVelocity = dir * maxSpeed
+                end
             end
         end
+    else
+        createDeletePart()
     end
 end)
 
 --============================================================================
--- BALL PET (оптимизирован)
+-- BALL PET
 --============================================================================
 local trappedBalls = {}
 RunService.Heartbeat:Connect(function()
@@ -808,7 +989,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --============================================================================
--- JUMP POWER & SPEED (оставлен в Heartbeat, лёгкий)
+-- JUMP POWER & SPEED
 --============================================================================
 RunService.Heartbeat:Connect(function()
     local char = lp.Character
@@ -891,7 +1072,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --============================================================================
--- FREEZE TIME (оптимизирован — задержка увеличена)
+-- FREEZE TIME
 --============================================================================
 local freezePart
 task.spawn(function()
@@ -921,12 +1102,12 @@ task.spawn(function()
         else
             if freezePart then freezePart:Destroy(); freezePart = nil end
         end
-        task.wait(0.1) -- увеличено с 0 до 0.1 сек
+        task.wait(0.1)
     end
 end)
 
 --============================================================================
--- PERFECT TIME (оптимизирован)
+-- PERFECT TIME
 --============================================================================
 local perfectPart, perfectRing
 task.spawn(function()
@@ -982,7 +1163,7 @@ task.spawn(function()
             if perfectPart then perfectPart:Destroy(); perfectPart = nil end
             if perfectRing then perfectRing:Destroy(); perfectRing = nil end
         end
-        task.wait(0.1) -- увеличено
+        task.wait(0.1)
     end
 end)
 
@@ -1037,7 +1218,7 @@ task.spawn(function()
                         auraText.Text = S.auraText
                         auraText.Font = Enum.Font.GothamBlack
                         auraText.TextSize = 28
-                        auraText.TextColor3 = Color3.fromRGB(255, 0, 0)
+                        auraText.TextColor3 = ACCENT
                         auraText.Size = UDim2.new(1, 0, 1, 0)
 
                         local stroke1 = Instance.new("UIStroke", auraText)
@@ -1073,12 +1254,15 @@ task.spawn(function()
 end)
 
 --============================================================================
--- ESP
+-- ESP + RAINBOW ESP
 --============================================================================
 local espObjects = {}
 task.spawn(function()
+    local rainbowHue = 0
     while alive do
         if S.esp then
+            rainbowHue = (rainbowHue + 0.01) % 1
+            
             for _, player in ipairs(Players:GetPlayers()) do
                 if player ~= lp and player.Character then
                     local head = player.Character:FindFirstChild("Head")
@@ -1091,6 +1275,15 @@ task.spawn(function()
                             h.FillTransparency = 0.4
                             h.Parent = player.Character
                             espObjects[player] = h
+                        end
+                        
+                        if S.rainbowesp and espObjects[player] then
+                            local hue = (rainbowHue + player.UserId % 100 / 100) % 1
+                            espObjects[player].FillColor = Color3.fromHSV(hue, 1, 1)
+                            espObjects[player].OutlineColor = Color3.fromHSV((hue + 0.5) % 1, 1, 1)
+                        elseif not S.rainbowesp and espObjects[player] then
+                            espObjects[player].FillColor = Color3.fromRGB(255, 80, 80)
+                            espObjects[player].OutlineColor = Color3.fromRGB(255, 255, 255)
                         end
                     end
                 end
@@ -1113,6 +1306,15 @@ task.spawn(function()
                     h.FillTransparency = 0.5
                     h.Parent = ball
                 end
+                
+                if S.rainbowesp then
+                    local ballEsp = ball:FindFirstChild("BallESP")
+                    if ballEsp then
+                        local hue = (rainbowHue + #ball.Name % 10 / 10) % 1
+                        ballEsp.FillColor = Color3.fromHSV(hue, 1, 1)
+                        ballEsp.OutlineColor = Color3.fromHSV((hue + 0.5) % 1, 1, 1)
+                    end
+                end
             end
         else
             local balls = getBalls()
@@ -1122,7 +1324,38 @@ task.spawn(function()
             end
         end
 
-        task.wait(0.5)
+        task.wait(0.05)
+    end
+end)
+
+--============================================================================
+-- MUSIC PLAYER
+--============================================================================
+local musicSound
+task.spawn(function()
+    while alive do
+        if S.musicplayer then
+            if not musicSound or not musicSound.Parent then
+                if musicSound then musicSound:Destroy() end
+                musicSound = Instance.new("Sound")
+                musicSound.Name = "MusicPlayer"
+                musicSound.SoundId = S.musicID
+                musicSound.Looped = true
+                musicSound.Volume = 1
+                musicSound.Parent = workspace
+                musicSound:Play()
+            elseif musicSound.SoundId ~= S.musicID then
+                musicSound.SoundId = S.musicID
+                musicSound:Play()
+            end
+        else
+            if musicSound then
+                musicSound:Stop()
+                musicSound:Destroy()
+                musicSound = nil
+            end
+        end
+        task.wait(1)
     end
 end)
 
@@ -1149,12 +1382,13 @@ task.spawn(function()
         end
         local tc = 0
         for _ in pairs(trappedBalls) do tc += 1 end
-        stats.Text = string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s",
+        stats.Text = string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s | Spin: %s",
             hp, #getBalls(), tc,
             S.godmode and "✅" or "❌",
             S.freezetime and "✅" or "❌",
             S.ballpet and "✅" or "❌",
-            S.deleteball and "✅" or "❌")
+            S.deleteball and "✅" or "❌",
+            S.spinbot and "✅" or "❌")
         task.wait(0.5)
     end
 end)
@@ -1177,6 +1411,7 @@ _G.DodgeHub = {
         if perfectPart then perfectPart:Destroy() end
         if perfectRing then perfectRing:Destroy() end
         if auraBillboard then auraBillboard:Destroy() end
+        if musicSound then musicSound:Stop(); musicSound:Destroy() end
         for _, v in pairs(espObjects) do pcall(function() v:Destroy() end) end
         for ball in pairs(trappedBalls) do if ball and ball.Parent then ball.Anchored = false end end
         table.clear(espObjects)
@@ -1185,4 +1420,4 @@ _G.DodgeHub = {
     end
 }
 
-print("[🏃 Dodge Hub v5.3] Loaded — v5.2 + Smooth Auto Farm + Delete Ball V2. RightCtrl hides.")
+print("[🏃 Dodge Hub v1.2] Loaded — Dodge or Die ONLY | by SM1LER")
