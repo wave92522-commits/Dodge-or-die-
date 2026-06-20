@@ -1,5 +1,5 @@
 --==================================================================
--- 🏃 DODGE HUB v5.3 — Рабочий v5.2 + Наш Auto Farm
+-- 🏃 DODGE HUB v5.3 — Оптимизированная версия
 -- RightCtrl hides, — minimizes, ✕ closes.
 --==================================================================
 if _G.DodgeHub and _G.DodgeHub.Destroy then pcall(_G.DodgeHub.Destroy) end
@@ -121,7 +121,6 @@ titleC.TextXAlignment = Enum.TextXAlignment.Left
 titleC.Parent = header
 gradient(titleC, ACCENT2, ACCENT, 0)
 
--- by Ender01
 local byLabel = Instance.new("TextLabel")
 byLabel.Size = UDim2.fromOffset(100, 12)
 byLabel.Position = UDim2.fromOffset(58, 30)
@@ -410,7 +409,6 @@ local function makeSlider(page, label, desc, key, min, max, default)
     corner(dot, 8)
     dot.ZIndex = 2
 
-    -- Сделаем зону клика шире — добавим невидимую кнопку на всю область
     local hitArea = Instance.new("TextButton")
     hitArea.Size = UDim2.new(1, 0, 1, 0)
     hitArea.BackgroundTransparency = 1
@@ -437,7 +435,6 @@ local function makeSlider(page, label, desc, key, min, max, default)
                 updateSlider(input2)
             end
         end)
-        -- сразу обновим значение под текущей позицией мыши
         updateSlider(input)
     end
 
@@ -645,25 +642,32 @@ UserInputService.InputBegan:Connect(function(i, gpe)
 end)
 
 --============================================================================
--- FUNCTIONS
+-- ОПТИМИЗИРОВАННЫЕ ФУНКЦИИ
 --============================================================================
 local alive = true
 local lastAutofarmPos = nil
 
-local function findBalls()
-    local balls = {}
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") and (obj.Name:lower():find("ball") or obj:GetAttribute("IsBall")) then
-            table.insert(balls, obj)
+-- КЭШИРОВАНИЕ ШАРОВ (обновляется раз в 0.2 сек, а не каждый кадр)
+local cachedBalls = {}
+local lastBallCache = 0
+
+local function getBalls()
+    if tick() - lastBallCache > 0.2 then
+        cachedBalls = {}
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("BasePart") and (obj.Name:lower():find("ball") or obj:GetAttribute("IsBall")) then
+                table.insert(cachedBalls, obj)
+            end
         end
+        lastBallCache = tick()
     end
-    return balls
+    return cachedBalls
 end
 
 local function findNearestBall(pos)
     local nearest = nil
     local minDist = math.huge
-    for _, ball in ipairs(findBalls()) do
+    for _, ball in ipairs(getBalls()) do
         if ball and ball.Parent then
             local dist = (ball.Position - pos).Magnitude
             if dist < minDist then
@@ -676,7 +680,7 @@ local function findNearestBall(pos)
 end
 
 --============================================================================
--- GOD MODE
+-- GOD MODE (оптимизирован)
 --============================================================================
 local godPart
 RunService.Heartbeat:Connect(function()
@@ -706,7 +710,9 @@ RunService.Heartbeat:Connect(function()
     godPart.CFrame = root.CFrame
     godPart.Transparency = S.hitboxview and 0.6 or 1
 
-    for _, ball in ipairs(findBalls()) do
+    -- Используем кэшированные шары
+    local balls = getBalls()
+    for _, ball in ipairs(balls) do
         if ball and ball.Parent then
             local dist = (ball.Position - godPart.Position).Magnitude
             if dist < 8 then
@@ -720,7 +726,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --============================================================================
--- BALL PET
+-- BALL PET (оптимизирован)
 --============================================================================
 local trappedBalls = {}
 RunService.Heartbeat:Connect(function()
@@ -737,7 +743,8 @@ RunService.Heartbeat:Connect(function()
     local root = char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    for _, ball in ipairs(findBalls()) do
+    local balls = getBalls()
+    for _, ball in ipairs(balls) do
         if ball and ball.Parent then
             local dist = (ball.Position - root.Position).Magnitude
             if dist < S.petRange then
@@ -754,7 +761,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --============================================================================
--- JUMP POWER & SPEED
+-- JUMP POWER & SPEED (оставлен в Heartbeat, лёгкий)
 --============================================================================
 RunService.Heartbeat:Connect(function()
     local char = lp.Character
@@ -779,7 +786,7 @@ RunService.Stepped:Connect(function()
 end)
 
 --============================================================================
--- AUTO FARM - НАШ ПЛАВНЫЙ (ЗАМЕНЁН)
+-- AUTO FARM
 --============================================================================
 RunService.Heartbeat:Connect(function()
     if not S.autofarm then
@@ -837,7 +844,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --============================================================================
--- FREEZE TIME
+-- FREEZE TIME (оптимизирован — задержка увеличена)
 --============================================================================
 local freezePart
 task.spawn(function()
@@ -857,7 +864,8 @@ task.spawn(function()
             freezePart.Transparency = S.hitboxview and 0.6 or 1
 
             local slow = 1 - (S.freezeStr / 10)
-            for _, ball in ipairs(findBalls()) do
+            local balls = getBalls()
+            for _, ball in ipairs(balls) do
                 if ball and ball.Parent then
                     ball.Velocity *= slow
                     ball.AssemblyLinearVelocity *= slow
@@ -866,12 +874,12 @@ task.spawn(function()
         else
             if freezePart then freezePart:Destroy(); freezePart = nil end
         end
-        task.wait()
+        task.wait(0.1) -- увеличено с 0 до 0.1 сек
     end
 end)
 
 --============================================================================
--- PERFECT TIME
+-- PERFECT TIME (оптимизирован)
 --============================================================================
 local perfectPart, perfectRing
 task.spawn(function()
@@ -912,7 +920,8 @@ task.spawn(function()
                         if perfectRing then perfectRing:Destroy(); perfectRing = nil end
                     end
 
-                    for _, ball in ipairs(findBalls()) do
+                    local balls = getBalls()
+                    for _, ball in ipairs(balls) do
                         if ball and ball.Parent then
                             if (ball.Position - root.Position).Magnitude < S.perfectRange then
                                 ball.Velocity *= 0.01
@@ -926,7 +935,7 @@ task.spawn(function()
             if perfectPart then perfectPart:Destroy(); perfectPart = nil end
             if perfectRing then perfectRing:Destroy(); perfectRing = nil end
         end
-        task.wait()
+        task.wait(0.1) -- увеличено
     end
 end)
 
@@ -1047,7 +1056,8 @@ task.spawn(function()
         end
 
         if S.espballs then
-            for _, ball in ipairs(findBalls()) do
+            local balls = getBalls()
+            for _, ball in ipairs(balls) do
                 if ball and ball.Parent and not ball:FindFirstChild("BallESP") then
                     local h = Instance.new("Highlight")
                     h.Name = "BallESP"
@@ -1058,7 +1068,8 @@ task.spawn(function()
                 end
             end
         else
-            for _, ball in ipairs(findBalls()) do
+            local balls = getBalls()
+            for _, ball in ipairs(balls) do
                 local esp = ball and ball:FindFirstChild("BallESP")
                 if esp then esp:Destroy() end
             end
@@ -1092,7 +1103,7 @@ task.spawn(function()
         local tc = 0
         for _ in pairs(trappedBalls) do tc += 1 end
         stats.Text = string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s",
-            hp, #findBalls(), tc,
+            hp, #getBalls(), tc,
             S.godmode and "✅" or "❌",
             S.freezetime and "✅" or "❌",
             S.ballpet and "✅" or "❌")
