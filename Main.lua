@@ -576,6 +576,7 @@ makeToggle(pBall, "Freeze Time", "Slow down ALL balls (big zone)", "freezetime")
 makeToggle(pBall, "Perfect Time", "Precision slow zone near you", "perfecttime")
 makeToggle(pBall, "Perfect Ring", "Show flat circle range indicator", "perfectring")
 makeToggle(pBall, "Ball Pet", "Balls get stuck in your shield", "ballpet")
+makeToggle(pBall, "Delete Ball V2", "Mega-push balls at max speed", "deleteball")
 makeSlider(pBall, "Freeze Strength", "How much to slow the ball (1-10)", "freezeStr", 1, 10, 2)
 makeSlider(pBall, "Perfect Range", "Range of perfect time circle", "perfectRange", 5, 30, 10)
 makeSlider(pBall, "Pet Range", "How close ball must be to get trapped", "petRange", 4, 20, 8)
@@ -720,6 +721,52 @@ RunService.Heartbeat:Connect(function()
                 if dir.Magnitude < 0.1 then dir = Vector3.new(0, 1, 0) end
                 ball.Velocity = dir * 25
                 ball.AssemblyLinearVelocity = dir * 25
+            end
+        end
+    end
+end)
+
+--============================================================================
+-- DELETE BALL V2 — отбрасывает шары на максимальной скорости
+--============================================================================
+local deletePart
+RunService.Heartbeat:Connect(function()
+    if not S.deleteball then
+        if deletePart then deletePart:Destroy(); deletePart = nil end
+        return
+    end
+
+    local char = lp.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    if not deletePart or not deletePart.Parent then
+        if deletePart then deletePart:Destroy() end
+        deletePart = Instance.new("Part")
+        deletePart.Name = "DeleteShield"
+        deletePart.Size = Vector3.new(12, 12, 12)
+        deletePart.Transparency = S.hitboxview and 0.5 or 1
+        deletePart.Color = Color3.fromRGB(255, 0, 0)
+        deletePart.Material = Enum.Material.ForceField
+        deletePart.CanCollide = false
+        deletePart.Anchored = true
+        deletePart.Parent = workspace
+    end
+
+    deletePart.CFrame = root.CFrame
+    deletePart.Transparency = S.hitboxview and 0.5 or 1
+
+    local balls = getBalls()
+    for _, ball in ipairs(balls) do
+        if ball and ball.Parent then
+            local dist = (ball.Position - deletePart.Position).Magnitude
+            if dist < 10 then
+                local dir = (ball.Position - deletePart.Position).Unit
+                if dir.Magnitude < 0.1 then dir = Vector3.new(math.random(-1, 1), 1, math.random(-1, 1)).Unit end
+                local maxSpeed = 500 -- максимальная скорость отброса
+                ball.Velocity = dir * maxSpeed
+                ball.AssemblyLinearVelocity = dir * maxSpeed
             end
         end
     end
@@ -1102,11 +1149,12 @@ task.spawn(function()
         end
         local tc = 0
         for _ in pairs(trappedBalls) do tc += 1 end
-        stats.Text = string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s",
+        stats.Text = string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s",
             hp, #getBalls(), tc,
             S.godmode and "✅" or "❌",
             S.freezetime and "✅" or "❌",
-            S.ballpet and "✅" or "❌")
+            S.ballpet and "✅" or "❌",
+            S.deleteball and "✅" or "❌")
         task.wait(0.5)
     end
 end)
@@ -1124,6 +1172,7 @@ _G.DodgeHub = {
         for k in pairs(S) do if type(S[k]) == "boolean" then S[k] = false end end
         if gui then gui:Destroy() end
         if godPart then godPart:Destroy() end
+        if deletePart then deletePart:Destroy() end
         if freezePart then freezePart:Destroy() end
         if perfectPart then perfectPart:Destroy() end
         if perfectRing then perfectRing:Destroy() end
@@ -1136,4 +1185,4 @@ _G.DodgeHub = {
     end
 }
 
-print("[🏃 Dodge Hub v5.3] Loaded — v5.2 + Smooth Auto Farm. RightCtrl hides.")
+print("[🏃 Dodge Hub v5.3] Loaded — v5.2 + Smooth Auto Farm + Delete Ball V2. RightCtrl hides.")
