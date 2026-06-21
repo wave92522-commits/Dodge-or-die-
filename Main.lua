@@ -1,10 +1,10 @@
 --==================================================================
--- 🏃 DODGE HUB v1.5 — Dodge or Die ONLY
+-- 🏃 SM1LE HUB v2.0 — Dodge or Die ONLY
 -- RightCtrl hides, — minimizes, ✕ closes.
 --==================================================================
 
 if game.PlaceId ~= 131794278839305 then return end
-if _G.DodgeHub and _G.DodgeHub.Destroy then pcall(_G.DodgeHub.Destroy) end
+if _G.Sm1leHub and _G.Sm1leHub.Destroy then pcall(_G.Sm1leHub.Destroy) end
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -13,6 +13,70 @@ local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
 local lp = Players.LocalPlayer
 
+-- ИНТРО
+local introGui = Instance.new("ScreenGui")
+introGui.Name = "Sm1leIntro"
+introGui.ResetOnSpawn = false
+introGui.IgnoreGuiInset = true
+introGui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
+
+local introFrame = Instance.new("Frame")
+introFrame.Size = UDim2.new(1, 0, 1, 0)
+introFrame.BackgroundColor3 = Color3.fromRGB(10, 2, 2)
+introFrame.BorderSizePixel = 0
+introFrame.Parent = introGui
+
+local introTitle = Instance.new("TextLabel")
+introTitle.Size = UDim2.new(0, 500, 0, 100)
+introTitle.Position = UDim2.new(0.5, -250, 0.5, -50)
+introTitle.BackgroundTransparency = 1
+introTitle.Text = "SM1LE HUB"
+introTitle.Font = Enum.Font.GothamBlack
+introTitle.TextSize = 60
+introTitle.TextColor3 = Color3.fromRGB(220, 20, 20)
+introTitle.TextTransparency = 1
+introTitle.Parent = introFrame
+
+local introSubtitle = Instance.new("TextLabel")
+introSubtitle.Size = UDim2.new(0, 300, 0, 40)
+introSubtitle.Position = UDim2.new(0.5, -150, 0.5, 60)
+introSubtitle.BackgroundTransparency = 1
+introSubtitle.Text = "Dodge or Die"
+introSubtitle.Font = Enum.Font.Gotham
+introSubtitle.TextSize = 24
+introSubtitle.TextColor3 = Color3.fromRGB(200, 140, 140)
+introSubtitle.TextTransparency = 1
+introSubtitle.Parent = introFrame
+
+local introVersion = Instance.new("TextLabel")
+introVersion.Size = UDim2.new(0, 200, 0, 25)
+introVersion.Position = UDim2.new(0.5, -100, 0.5, 95)
+introVersion.BackgroundTransparency = 1
+introVersion.Text = "by SM1LER"
+introVersion.Font = Enum.Font.GothamMedium
+introVersion.TextSize = 16
+introVersion.TextColor3 = Color3.fromRGB(255, 70, 70)
+introVersion.TextTransparency = 1
+introVersion.Parent = introFrame
+
+local fadeIn = TweenService:Create(introTitle, TweenInfo.new(1, Enum.EasingStyle.Quint), {TextTransparency = 0})
+local fadeInSub = TweenService:Create(introSubtitle, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.In, 0.4), {TextTransparency = 0})
+local fadeInVer = TweenService:Create(introVersion, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.In, 0.7), {TextTransparency = 0})
+local scaleUp = TweenService:Create(introTitle, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {TextSize = 70})
+local fadeOut = TweenService:Create(introFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 1})
+
+fadeIn:Play()
+fadeInSub:Play()
+fadeInVer:Play()
+fadeIn.Completed:Wait()
+scaleUp:Play()
+scaleUp.Completed:Wait()
+task.wait(0.3)
+fadeOut:Play()
+fadeOut.Completed:Wait()
+introGui:Destroy()
+
+-- ОСНОВНОЙ СКРИПТ
 local S = {
     godmode = false, jumppower = false, speed = false, autofarm = false,
     freezetime = false, perfecttime = false, deleteball = false, autoskill = false,
@@ -88,7 +152,7 @@ local function gradient(p,c1,c2,rot) local g=Instance.new("UIGradient") g.Color=
 
 local parent = (gethui and gethui()) or game:GetService("CoreGui")
 local gui = Instance.new("ScreenGui")
-gui.Name = "DodgeHub"; gui.ResetOnSpawn = false; gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; gui.IgnoreGuiInset = true; gui.Parent = parent
+gui.Name = "Sm1leHub"; gui.ResetOnSpawn = false; gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; gui.IgnoreGuiInset = true; gui.Parent = parent
 
 local main = Instance.new("Frame")
 main.Size = UDim2.fromOffset(520,440); main.Position = UDim2.fromScale(0.5,0.5); main.AnchorPoint = Vector2.new(0.5,0.5)
@@ -107,7 +171,7 @@ logo.BackgroundTransparency = 1; logo.Font = Enum.Font.GothamBold; logo.Text = "
 
 local titleC = Instance.new("TextLabel"); titleC.Size = UDim2.fromOffset(200,22); titleC.Position = UDim2.fromOffset(58,11)
 titleC.BackgroundTransparency = 1; titleC.Font = Enum.Font.GothamBold; titleC.TextSize = 19; titleC.TextColor3 = TXT
-titleC.Text = "Dodge Hub v1.5"; titleC.TextXAlignment = Enum.TextXAlignment.Left; titleC.Parent = header
+titleC.Text = "SM1LE HUB v2.0"; titleC.TextXAlignment = Enum.TextXAlignment.Left; titleC.Parent = header
 gradient(titleC, currentTheme.TitleGrad1, currentTheme.TitleGrad2, 0)
 
 local byLabel = Instance.new("TextLabel"); byLabel.Size = UDim2.fromOffset(100,16); byLabel.Position = UDim2.fromOffset(58,29)
@@ -218,10 +282,8 @@ local function sectionInfo(page,text)
 end
 
 local function applyTransparency(transp)
-    main.BackgroundTransparency = transp
-    header.BackgroundTransparency = transp
-    hfix.BackgroundTransparency = transp
-    side.BackgroundTransparency = transp
+    main.BackgroundTransparency = transp; header.BackgroundTransparency = transp
+    hfix.BackgroundTransparency = transp; side.BackgroundTransparency = transp
     for _, data in ipairs(allRows) do
         if data.type == "toggle" or data.type == "slider" or data.type == "textbox" then
             data.row.BackgroundTransparency = transp
@@ -234,40 +296,27 @@ local function applyTheme(themeName)
     ACCENT = currentTheme.ACCENT; ACCENT2 = currentTheme.ACCENT2
     BG = currentTheme.BG; BG2 = currentTheme.BG2; BG3 = currentTheme.BG3
     TXT = currentTheme.TXT; SUB = currentTheme.SUB
-    
     local transp = S.bgTransparency / 100
-    
     main.BackgroundColor3 = BG; main.BackgroundTransparency = transp; mst.Color = currentTheme.Stroke
     header.BackgroundColor3 = BG2; header.BackgroundTransparency = transp
     hfix.BackgroundColor3 = BG2; hfix.BackgroundTransparency = transp
     side.BackgroundColor3 = BG2; side.BackgroundTransparency = transp
-    
     if titleC:FindFirstChildOfClass("UIGradient") then titleC:FindFirstChildOfClass("UIGradient"):Destroy() end
     gradient(titleC, currentTheme.TitleGrad1, currentTheme.TitleGrad2, 0); titleC.TextColor3 = TXT
-    
     if byLabel:FindFirstChildOfClass("UIGradient") then byLabel:FindFirstChildOfClass("UIGradient"):Destroy() end
     gradient(byLabel, currentTheme.ByGrad1, currentTheme.ByGrad2, 0); byLabel.TextColor3 = TXT
-    
-    statusL.TextColor3 = SUB
-    closeB.BackgroundColor3 = BG3; closeB.TextColor3 = TXT
-    minB.BackgroundColor3 = BG3; minB.TextColor3 = TXT
-    
+    statusL.TextColor3 = SUB; closeB.BackgroundColor3 = BG3; closeB.TextColor3 = TXT; minB.BackgroundColor3 = BG3; minB.TextColor3 = TXT
     for name, tabData in pairs(tabs) do
         local on = (activeTab == name)
-        tabData.btn.BackgroundColor3 = on and BG3 or BG2
-        tabData.btn.BackgroundTransparency = transp
-        tabData.accent.BackgroundColor3 = ACCENT
-        tabData.lbl.TextColor3 = on and TXT or SUB
+        tabData.btn.BackgroundColor3 = on and BG3 or BG2; tabData.btn.BackgroundTransparency = transp
+        tabData.accent.BackgroundColor3 = ACCENT; tabData.lbl.TextColor3 = on and TXT or SUB
     end
-    
     for _, page in pairs(pages) do page.ScrollBarImageColor3 = ACCENT end
-    
     for _, data in ipairs(allRows) do
         if data.type == "toggle" then
             data.row.BackgroundColor3 = BG2; data.row.BackgroundTransparency = transp
             data.st.Color = currentTheme.Stroke; data.t.TextColor3 = TXT; data.d.TextColor3 = SUB
-            data.sw.BackgroundColor3 = S[data.key] and ACCENT or currentTheme.SwitchOff
-            data.knob.BackgroundColor3 = TXT
+            data.sw.BackgroundColor3 = S[data.key] and ACCENT or currentTheme.SwitchOff; data.knob.BackgroundColor3 = TXT
         elseif data.type == "slider" then
             data.row.BackgroundColor3 = BG2; data.row.BackgroundTransparency = transp
             data.t.TextColor3 = TXT; data.valLabel.TextColor3 = ACCENT; data.d.TextColor3 = SUB
@@ -276,15 +325,19 @@ local function applyTheme(themeName)
             data.row.BackgroundColor3 = BG2; data.row.BackgroundTransparency = transp
             data.t.TextColor3 = TXT; data.d.TextColor3 = SUB
             data.box.BackgroundColor3 = BG3; data.box.TextColor3 = TXT; data.box.PlaceholderColor3 = SUB
-        elseif data.type == "section" then
-            data.label.TextColor3 = SUB
-        end
+        elseif data.type == "section" then data.label.TextColor3 = SUB end
     end
 end
 
 applyTransparency(0.07)
 
 local pPlayer = makeTab("Player","🏃")
+local pFarm = makeTab("Farm","🤖")
+local pBall = makeTab("Ball","⚽")
+local pVisuals = makeTab("Visuals","👁️")
+local pFun = makeTab("Fun","🎵")
+local pSettings = makeTab("Settings","⚙️")
+
 makeToggle(pPlayer,"God Mode","Wall shield that pushes balls away","godmode")
 makeToggle(pPlayer,"Jump Power","Super high jumps","jumppower")
 makeToggle(pPlayer,"Speed Boost","Move faster than everyone","speed")
@@ -297,12 +350,10 @@ makeSlider(pPlayer,"Speed Value","Set walk speed","speedVal",16,200,50)
 makeSlider(pPlayer,"Spin Speed","Rotation speed","spinSpeed",1,50,10)
 makeToggle(pPlayer,"Reset","Kill yourself to respawn","reset",function(on) if on and lp.Character then lp.Character:BreakJoints() task.wait(0.1) S.reset=false end end)
 
-local pFarm = makeTab("Farm","🤖")
 makeToggle(pFarm,"Auto Farm (AFK)","Hang safely behind random player","autofarm")
 makeToggle(pFarm,"Auto Skill","Auto-use all inventory abilities","autoskill")
 makeSlider(pFarm,"Distance Behind","How far behind player to hang","tpY",30,200,80)
 
-local pBall = makeTab("Ball","⚽")
 makeToggle(pBall,"Freeze Time","FREEZE all balls completely","freezetime")
 makeToggle(pBall,"Perfect Time","Precision slow zone near you","perfecttime")
 makeToggle(pBall,"Perfect Ring","Show flat circle range indicator","perfectring")
@@ -313,18 +364,15 @@ makeSlider(pBall,"Freeze Strength","How much to slow the ball (1-10)","freezeStr
 makeSlider(pBall,"Perfect Range","Range of perfect time circle","perfectRange",5,30,10)
 makeSlider(pBall,"Pet Range","How close ball must be to get trapped","petRange",4,20,8)
 
-local pVisuals = makeTab("Visuals","👁️")
 makeToggle(pVisuals,"ESP Players","See players through walls","esp")
 makeToggle(pVisuals,"Rainbow ESP","Rainbow colored highlights","rainbowesp")
 makeToggle(pVisuals,"ESP Balls","See balls through walls","espballs")
 makeToggle(pVisuals,"Hitbox Viewer","See god mode & freeze zones","hitboxview")
 makeToggle(pVisuals,"Anti AFK","Never get kicked for idling","antiafk")
 
-local pFun = makeTab("Fun","🎵")
 makeToggle(pFun,"Music Player","Play music in background","musicplayer")
 makeTextbox(pFun,"Music ID","Roblox audio asset ID","musicID","rbxassetid://1842801835")
 
-local pSettings = makeTab("Settings","⚙️")
 sectionInfo(pSettings,"Choose UI Theme:")
 for themeName,_ in pairs(Themes) do 
     makeToggle(pSettings, themeName, "Apply "..themeName.." theme", "theme_"..themeName:lower(), function(on)
@@ -337,9 +385,7 @@ for themeName,_ in pairs(Themes) do
     end)
 end
 sectionInfo(pSettings,"Background Transparency:")
-makeSlider(pSettings,"BG Transparency","0 = solid, 100 = invisible","bgTransparency",0,90,7, function(val)
-    applyTransparency(val / 100)
-end)
+makeSlider(pSettings,"BG Transparency","0 = solid, 100 = invisible","bgTransparency",0,90,7, function(val) applyTransparency(val / 100) end)
 
 S["theme_blood"] = true
 
@@ -392,7 +438,7 @@ RunService.Heartbeat:Connect(function()
     local hum=char:FindFirstChild("Humanoid"); if hum then hum.AutoRotate=false end
 end)
 
--- GOD MODE (РАБОЧАЯ ВЕРСИЯ)
+-- GOD MODE
 local godPart
 RunService.Heartbeat:Connect(function()
     if not S.godmode then if godPart then godPart:Destroy(); godPart=nil end return end
@@ -400,13 +446,14 @@ RunService.Heartbeat:Connect(function()
     local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
     if not godPart or not godPart.Parent then if godPart then godPart:Destroy() end
         godPart=Instance.new("Part"); godPart.Name="GodShield"; godPart.Size=Vector3.new(10,10,10)
-        godPart.Transparency=S.hitboxview and 0.5 or 1; godPart.Color=Color3.fromRGB(0,255,0)
+        godPart.Transparency=S.hitboxview and 0.6 or 1; godPart.Color=Color3.fromRGB(255,0,0)
         godPart.Material=Enum.Material.ForceField; godPart.CanCollide=false; godPart.Anchored=true; godPart.Parent=workspace
     end
-    godPart.CFrame=root.CFrame; godPart.Transparency=S.hitboxview and 0.5 or 1
-    for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-godPart.Position).Magnitude<8 then
+    godPart.CFrame=root.CFrame; godPart.Transparency=S.hitboxview and 0.6 or 1
+    local balls=getBalls()
+    for _,ball in ipairs(balls) do if ball and ball.Parent and (ball.Position-godPart.Position).Magnitude<8 then
         local dir=(ball.Position-godPart.Position).Unit; if dir.Magnitude<0.1 then dir=Vector3.new(0,1,0) end
-        ball.Velocity=dir*100; ball.AssemblyLinearVelocity=dir*100
+        ball.Velocity=dir*25; ball.AssemblyLinearVelocity=dir*25
     end end
 end)
 
@@ -458,20 +505,14 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- BALL PET
-local trappedBalls = {}; local petPart
+local trappedBalls = {}
 RunService.Heartbeat:Connect(function()
     if not S.ballpet then
         for ball,_ in pairs(trappedBalls) do pcall(function() if ball and ball.Parent then ball.Anchored=false; ball.Velocity=Vector3.new(math.random(-50,50),math.random(50,100),math.random(-50,50)) end end) end
-        table.clear(trappedBalls); if petPart then petPart:Destroy(); petPart=nil end; return
+        table.clear(trappedBalls); return
     end
     local char=lp.Character; if not char then return end
     local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    if not petPart or not petPart.Parent then if petPart then petPart:Destroy() end
-        petPart=Instance.new("Part"); petPart.Name="PetZone"; petPart.Size=Vector3.new(S.petRange*2,S.petRange*2,S.petRange*2)
-        petPart.Transparency=S.hitboxview and 0.5 or 1; petPart.Color=Color3.fromRGB(255,255,0)
-        petPart.Material=Enum.Material.ForceField; petPart.CanCollide=false; petPart.Anchored=true; petPart.Parent=workspace
-    end
-    if petPart then petPart.CFrame=root.CFrame; petPart.Size=Vector3.new(S.petRange*2,S.petRange*2,S.petRange*2); petPart.Transparency=S.hitboxview and 0.5 or 1 end
     for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-root.Position).Magnitude<S.petRange then trappedBalls[ball]=true; ball.Anchored=true; ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end end
     for ball,_ in pairs(trappedBalls) do pcall(function() if ball and ball.Parent then if (ball.Position-root.Position).Magnitude>S.petRange+3 then ball.Anchored=false; trappedBalls[ball]=nil else ball.Anchored=true; ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end else trappedBalls[ball]=nil end end) end
 end)
@@ -592,20 +633,23 @@ task.spawn(function()
     task.wait(0.5) end
 end)
 
-closeB.MouseButton1Click:Connect(function() if _G.DodgeHub then _G.DodgeHub.Destroy() end end)
+closeB.MouseButton1Click:Connect(function() if _G.Sm1leHub then _G.Sm1leHub.Destroy() end end)
 
-_G.DodgeHub = {
+_G.Sm1leHub = {
     Destroy = function()
         alive=false; for k in pairs(S) do if type(S[k])=="boolean" then S[k]=false end end
         if gui then gui:Destroy() end
-        if godPart then godPart:Destroy() end; if deletePart then deletePart:Destroy() end
-        if redirectPart then redirectPart:Destroy() end; if petPart then petPart:Destroy() end
-        if freezePart then freezePart:Destroy() end; if perfectPart then perfectPart:Destroy() end
-        if perfectRing then perfectRing:Destroy() end; if auraBillboard then auraBillboard:Destroy() end
+        if godPart then godPart:Destroy() end
+        if deletePart then deletePart:Destroy() end
+        if redirectPart then redirectPart:Destroy() end
+        if freezePart then freezePart:Destroy() end
+        if perfectPart then perfectPart:Destroy() end
+        if perfectRing then perfectRing:Destroy() end
+        if auraBillboard then auraBillboard:Destroy() end
         if musicSound then musicSound:Stop(); musicSound:Destroy() end
         for ball,_ in pairs(trappedBalls) do pcall(function() if ball and ball.Parent then ball.Anchored=false end end) end
         table.clear(trappedBalls)
         for _,v in pairs(espObjects) do pcall(function() v:Destroy() end) end; table.clear(espObjects)
-        _G.DodgeHub=nil
+        _G.Sm1leHub=nil
     end
 }
