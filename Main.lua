@@ -1,6 +1,6 @@
 --==================================================================
--- 📌📜 SM1LE HUB v2.0 — Dodge or Die ONLY
--- By S M 1 L E R 📌 
+-- 🏃 SM1LE HUB v2.0 — Dodge or Die ONLY
+-- RightCtrl hides, — minimizes, ✕ closes.
 --==================================================================
 
 if game.PlaceId ~= 131794278839305 then return end
@@ -14,7 +14,15 @@ local VirtualUser = game:GetService("VirtualUser")
 local VIM = game:GetService("VirtualInputManager")
 local lp = Players.LocalPlayer
 
--- ИНТРО (Cosmic theme)
+-- ==================== ФУНКЦИИ РАННЕГО ДОСТУПА ====================
+local function corner(p, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, r)
+    c.Parent = p
+    return c
+end
+
+-- ==================== ИНТРО (10.9s) ====================
 local introGui = Instance.new("ScreenGui")
 introGui.Name = "Sm1leIntro"
 introGui.ResetOnSpawn = false
@@ -23,94 +31,192 @@ introGui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
 
 local introFrame = Instance.new("Frame")
 introFrame.Size = UDim2.new(1, 0, 1, 0)
-introFrame.BackgroundColor3 = Color3.fromRGB(5, 3, 12)
+introFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 introFrame.BorderSizePixel = 0
 introFrame.Parent = introGui
 
-local introGradient = Instance.new("UIGradient")
-introGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 3, 12)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 10, 60)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 3, 12))
-})
-introGradient.Rotation = 45
-introGradient.Parent = introFrame
+local snowflakesIntro = {}
+for i = 1, 60 do
+    local flake = Instance.new("Frame")
+    local size = math.random(2, 5)
+    flake.Size = UDim2.fromOffset(size, size)
+    flake.Position = UDim2.fromScale(math.random(), math.random() * -1)
+    flake.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    flake.BackgroundTransparency = math.random() * 0.5 + 0.3
+    flake.BorderSizePixel = 0
+    flake.Parent = introFrame
+    corner(flake, size / 2)
+    
+    local glow = Instance.new("UIStroke")
+    glow.Color = Color3.fromRGB(255, 255, 255)
+    glow.Thickness = 1
+    glow.Transparency = 0.6
+    glow.Parent = flake
+    
+    snowflakesIntro[i] = {
+        dot = flake, glow = glow,
+        x = flake.Position.X.Scale, y = flake.Position.Y.Scale,
+        speed = math.random() * 0.35 + 0.15,
+        wind = math.random() * 0.08 - 0.04,
+        twinkle = math.random() * 10,
+    }
+end
 
 local introTitle = Instance.new("TextLabel")
-introTitle.Size = UDim2.new(0, 500, 0, 100)
-introTitle.Position = UDim2.new(0.5, -250, 0.5, -50)
+introTitle.Size = UDim2.new(0, 600, 0, 80)
+introTitle.Position = UDim2.new(0.5, -300, 0.5, -130)
 introTitle.BackgroundTransparency = 1
 introTitle.Text = "SM1LE HUB"
 introTitle.Font = Enum.Font.GothamBlack
-introTitle.TextSize = 60
-introTitle.TextColor3 = Color3.fromRGB(200, 150, 255)
+introTitle.TextSize = 56
+introTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 introTitle.TextTransparency = 1
 introTitle.Parent = introFrame
 
-local titleGradient = Instance.new("UIGradient")
-titleGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 150, 255)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 255))
-})
-titleGradient.Parent = introTitle
+local introTitleGlow = Instance.new("UIStroke")
+introTitleGlow.Color = Color3.fromRGB(255, 255, 255)
+introTitleGlow.Thickness = 2
+introTitleGlow.Transparency = 1
+introTitleGlow.Parent = introTitle
+
+local introTitleGrad = Instance.new("UIGradient")
+introTitleGrad.Parent = introTitle
 
 local introSubtitle = Instance.new("TextLabel")
-introSubtitle.Size = UDim2.new(0, 300, 0, 40)
-introSubtitle.Position = UDim2.new(0.5, -150, 0.5, 60)
+introSubtitle.Size = UDim2.new(0, 400, 0, 35)
+introSubtitle.Position = UDim2.new(0.5, -200, 0.5, -40)
 introSubtitle.BackgroundTransparency = 1
-introSubtitle.Text = "Dodge or Die"
-introSubtitle.Font = Enum.Font.Gotham
+introSubtitle.Text = "DODGE OR DIE"
+introSubtitle.Font = Enum.Font.GothamMedium
 introSubtitle.TextSize = 24
-introSubtitle.TextColor3 = Color3.fromRGB(170, 155, 210)
+introSubtitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 introSubtitle.TextTransparency = 1
 introSubtitle.Parent = introFrame
 
-local subGradient = Instance.new("UIGradient")
-subGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(170, 155, 210)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220, 210, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(170, 155, 210))
-})
-subGradient.Parent = introSubtitle
+local introSubGlow = Instance.new("UIStroke")
+introSubGlow.Color = Color3.fromRGB(255, 255, 255)
+introSubGlow.Thickness = 1.5
+introSubGlow.Transparency = 1
+introSubGlow.Parent = introSubtitle
 
-local introVersion = Instance.new("TextLabel")
-introVersion.Size = UDim2.new(0, 200, 0, 25)
-introVersion.Position = UDim2.new(0.5, -100, 0.5, 95)
-introVersion.BackgroundTransparency = 1
-introVersion.Text = "by SM1LER"
-introVersion.Font = Enum.Font.GothamMedium
-introVersion.TextSize = 16
-introVersion.TextColor3 = Color3.fromRGB(180, 130, 255)
-introVersion.TextTransparency = 1
-introVersion.Parent = introFrame
+local introSubGrad = Instance.new("UIGradient")
+introSubGrad.Parent = introSubtitle
 
-local verGradient = Instance.new("UIGradient")
-verGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 130, 255)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 220, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 130, 255))
-})
-verGradient.Parent = introVersion
+local introAuthor = Instance.new("TextLabel")
+introAuthor.Size = UDim2.new(0, 300, 0, 25)
+introAuthor.Position = UDim2.new(0.5, -150, 0.5, 5)
+introAuthor.BackgroundTransparency = 1
+introAuthor.Text = "by SM1LER"
+introAuthor.Font = Enum.Font.Gotham
+introAuthor.TextSize = 16
+introAuthor.TextColor3 = Color3.fromRGB(255, 255, 255)
+introAuthor.TextTransparency = 1
+introAuthor.Parent = introFrame
 
-local fadeIn = TweenService:Create(introTitle, TweenInfo.new(1, Enum.EasingStyle.Quint), {TextTransparency = 0})
-local fadeInSub = TweenService:Create(introSubtitle, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.In, 0.4), {TextTransparency = 0})
-local fadeInVer = TweenService:Create(introVersion, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.In, 0.7), {TextTransparency = 0})
-local scaleUp = TweenService:Create(introTitle, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {TextSize = 70})
-local fadeOut = TweenService:Create(introFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 1})
+local introAuthorGlow = Instance.new("UIStroke")
+introAuthorGlow.Color = Color3.fromRGB(255, 255, 255)
+introAuthorGlow.Thickness = 1
+introAuthorGlow.Transparency = 1
+introAuthorGlow.Parent = introAuthor
 
-fadeIn:Play()
-fadeInSub:Play()
-fadeInVer:Play()
-fadeIn.Completed:Wait()
-scaleUp:Play()
-scaleUp.Completed:Wait()
-task.wait(0.3)
-fadeOut:Play()
-fadeOut.Completed:Wait()
-introGui:Destroy()
+local introAuthorGrad = Instance.new("UIGradient")
+introAuthorGrad.Parent = introAuthor
 
--- ОСНОВНОЙ СКРИПТ
+local introLine = Instance.new("Frame")
+introLine.Size = UDim2.fromOffset(0, 1)
+introLine.Position = UDim2.new(0.5, -100, 0.5, 35)
+introLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+introLine.BorderSizePixel = 0
+introLine.BackgroundTransparency = 1
+introLine.Parent = introFrame
+
+local introLineGlow = Instance.new("UIStroke")
+introLineGlow.Color = Color3.fromRGB(255, 255, 255)
+introLineGlow.Thickness = 1.5
+introLineGlow.Transparency = 1
+introLineGlow.Parent = introLine
+
+local introLineGrad = Instance.new("UIGradient")
+introLineGrad.Parent = introLine
+
+-- Анимация интро
+local introClock = 0
+local introConn
+introConn = RunService.Heartbeat:Connect(function(dt)
+    introClock += dt
+    
+    for _, flake in ipairs(snowflakesIntro) do
+        flake.y = flake.y + flake.speed * dt
+        flake.x = flake.x + flake.wind * dt + math.sin(introClock * 1.2 + flake.twinkle) * 0.001
+        if flake.y > 1.1 then flake.y = -0.05; flake.x = math.random() end
+        if flake.x > 1.05 then flake.x = -0.05 end
+        if flake.x < -0.05 then flake.x = 1.05 end
+        flake.dot.Position = UDim2.fromScale(flake.x, flake.y)
+        local brightness = math.sin(introClock * 2.5 + flake.twinkle) * 0.15 + 0.85
+        flake.dot.BackgroundTransparency = 1 - brightness * 0.5
+        flake.glow.Transparency = 1 - brightness * 0.3
+    end
+    
+    local wave = math.sin(introClock * 0.8) * 0.15
+    local whitePos = 0.55 + wave
+    local gradSequence = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+        ColorSequenceKeypoint.new(whitePos - 0.05, Color3.fromRGB(180, 180, 180)),
+        ColorSequenceKeypoint.new(whitePos + 0.05, Color3.fromRGB(40, 40, 40)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0)),
+    })
+    introTitleGrad.Color = gradSequence
+    introSubGrad.Color = gradSequence
+    introAuthorGrad.Color = gradSequence
+    introLineGrad.Color = gradSequence
+    
+    local glowPulse = math.sin(introClock * 1.5) * 0.08 + 0.92
+    introTitleGlow.Transparency = introTitle.TextTransparency + (1 - glowPulse)
+    introSubGlow.Transparency = introSubtitle.TextTransparency + (1 - glowPulse)
+    introAuthorGlow.Transparency = introAuthor.TextTransparency + (1 - glowPulse)
+    introLineGlow.Transparency = introLine.BackgroundTransparency + (1 - glowPulse)
+end)
+
+task.spawn(function()
+    TweenService:Create(introTitle, TweenInfo.new(1.2, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+    TweenService:Create(introTitleGlow, TweenInfo.new(1.2, Enum.EasingStyle.Quint), {Transparency = 0.8}):Play()
+    task.wait(0.7)
+    TweenService:Create(introSubtitle, TweenInfo.new(0.9, Enum.EasingStyle.Quint), {TextTransparency = 0.1}):Play()
+    TweenService:Create(introSubGlow, TweenInfo.new(0.9, Enum.EasingStyle.Quint), {Transparency = 0.8}):Play()
+    task.wait(0.6)
+    TweenService:Create(introAuthor, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {TextTransparency = 0.2}):Play()
+    TweenService:Create(introAuthorGlow, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Transparency = 0.8}):Play()
+    TweenService:Create(introLine, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.fromOffset(200, 1), BackgroundTransparency = 0.6}):Play()
+    TweenService:Create(introLineGlow, TweenInfo.new(0.9, Enum.EasingStyle.Quad), {Transparency = 0.7}):Play()
+    task.wait(1.7)
+    TweenService:Create(introTitle, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {TextSize = 60}):Play()
+    TweenService:Create(introTitleGlow, TweenInfo.new(0.7, Enum.EasingStyle.Quad), {Thickness = 3.5, Transparency = 0.6}):Play()
+    task.wait(0.7)
+    TweenService:Create(introTitle, TweenInfo.new(0.7, Enum.EasingStyle.Quad), {TextSize = 56}):Play()
+    TweenService:Create(introTitleGlow, TweenInfo.new(0.7, Enum.EasingStyle.Quad), {Thickness = 2, Transparency = 0.8}):Play()
+    task.wait(3.5)
+    if introConn then introConn:Disconnect() end
+    TweenService:Create(introTitle, TweenInfo.new(0.8, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
+    TweenService:Create(introTitleGlow, TweenInfo.new(0.8, Enum.EasingStyle.Quad), {Transparency = 1}):Play()
+    TweenService:Create(introSubtitle, TweenInfo.new(0.6, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
+    TweenService:Create(introSubGlow, TweenInfo.new(0.6, Enum.EasingStyle.Quad), {Transparency = 1}):Play()
+    TweenService:Create(introAuthor, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
+    TweenService:Create(introAuthorGlow, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {Transparency = 1}):Play()
+    TweenService:Create(introLine, TweenInfo.new(0.6, Enum.EasingStyle.Quad), {Size = UDim2.fromOffset(0, 1), BackgroundTransparency = 1}):Play()
+    TweenService:Create(introLineGlow, TweenInfo.new(0.6, Enum.EasingStyle.Quad), {Transparency = 1}):Play()
+    for _, flake in ipairs(snowflakesIntro) do
+        TweenService:Create(flake.dot, TweenInfo.new(0.7, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(flake.glow, TweenInfo.new(0.7, Enum.EasingStyle.Quad), {Transparency = 1}):Play()
+    end
+    TweenService:Create(introFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+    task.wait(0.8)
+    introGui:Destroy()
+end)
+
+-- Ждём завершения интро перед созданием GUI
+task.wait(10.9)
+
+-- ==================== ОСНОВНОЙ СКРИПТ ====================
 local START_BACKGROUND = "https://create.roblox.com/store/asset/6395708472/Black-Hole"
 local START_PANEL_TRANSPARENCY = 0.5
 local START_IMAGE_TRANSPARENCY = 0.05
@@ -121,7 +227,7 @@ local S = {
     esp = false, espballs = false, antiafk = false, noclip = false,
     hitboxview = false, aura = false, spinbot = false, ballpet = false,
     perfectring = false, reset = false, rainbowesp = false, musicplayer = false,
-    ballredirect = false,
+    ballredirect = false, snowEffect = false,
     jumpVal = 100, speedVal = 50, freezeStr = 2, tpY = 80,
     perfectRange = 10, petRange = 8, auraText = "John Doe",
     musicID = "rbxassetid://1842801835", spinSpeed = 10, theme = "Cosmic",
@@ -192,24 +298,17 @@ local ACCENT = currentTheme.ACCENT; local ACCENT2 = currentTheme.ACCENT2
 local BG = currentTheme.BG; local BG2 = currentTheme.BG2; local BG3 = currentTheme.BG3
 local TXT = currentTheme.TXT; local SUB = currentTheme.SUB
 
-local function corner(p,r) local c=Instance.new("UICorner") c.CornerRadius=UDim.new(0,r) c.Parent=p return c end
 local function pad(p,t,b,l,r) local u=Instance.new("UIPadding") u.PaddingTop=UDim.new(0,t) u.PaddingBottom=UDim.new(0,b) u.PaddingLeft=UDim.new(0,l) u.PaddingRight=UDim.new(0,r) u.Parent=p return u end
 local function gradient(p,c1,c2,rot) local g=Instance.new("UIGradient") g.Color=ColorSequence.new(c1,c2) g.Rotation=rot or 0 g.Parent=p return g end
 
 local function getAssetId(input)
     local text = tostring(input or "")
-    return text:match("rbxassetid://(%d+)")
-        or text:match("asset/(%d+)")
-        or text:match("library/(%d+)")
-        or text:match("[?&]id=(%d+)")
-        or text:match("^(%d+)$")
+    return text:match("rbxassetid://(%d+)") or text:match("asset/(%d+)") or text:match("library/(%d+)") or text:match("[?&]id=(%d+)") or text:match("^(%d+)$")
 end
 
 local function toImageContent(input)
     local id = getAssetId(input)
-    if id then
-        return "rbxthumb://type=Asset&id=" .. id .. "&w=420&h=420"
-    end
+    if id then return "rbxthumb://type=Asset&id=" .. id .. "&w=420&h=420" end
     return tostring(input or "")
 end
 
@@ -224,23 +323,76 @@ main.BackgroundTransparency = 1
 
 local mst = Instance.new("UIStroke",main); mst.Color = currentTheme.Stroke; mst.Thickness = 1.5; mst.Transparency = 0
 
--- WORKING BACKGROUND
+-- ФОН
 local bg = Instance.new("ImageLabel")
-bg.Name = "SM1LE_WorkingBackground"
-bg.BackgroundTransparency = 1
-bg.BorderSizePixel = 0
-bg.Position = UDim2.fromScale(0, 0)
-bg.Size = UDim2.fromScale(1, 1)
-bg.Image = toImageContent(START_BACKGROUND)
-bg.ScaleType = Enum.ScaleType.Crop
-bg.ImageTransparency = START_IMAGE_TRANSPARENCY
-bg.ZIndex = 1
-bg.Parent = main
-corner(bg, 16)
+bg.Name = "SM1LE_WorkingBackground"; bg.BackgroundTransparency = 1; bg.BorderSizePixel = 0
+bg.Position = UDim2.fromScale(0,0); bg.Size = UDim2.fromScale(1,1)
+bg.Image = toImageContent(START_BACKGROUND); bg.ScaleType = Enum.ScaleType.Crop
+bg.ImageTransparency = START_IMAGE_TRANSPARENCY; bg.ZIndex = 1; bg.Parent = main; corner(bg,16)
+
+-- СНЕГ В ОКНЕ
+local snowContainer = Instance.new("Frame")
+snowContainer.Name = "SnowContainer"; snowContainer.Size = UDim2.new(1,0,1,0)
+snowContainer.Position = UDim2.fromScale(0,0); snowContainer.BackgroundTransparency = 1
+snowContainer.BorderSizePixel = 0; snowContainer.ZIndex = 2; snowContainer.Visible = false; snowContainer.Parent = main
+
+local windowSnowflakes = {}
+for i = 1, 30 do
+    local flake = Instance.new("Frame")
+    local size = math.random(2, 4)
+    flake.Size = UDim2.fromOffset(size, size)
+    flake.Position = UDim2.fromScale(math.random(), math.random() * -1)
+    flake.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    flake.BackgroundTransparency = math.random() * 0.5 + 0.3
+    flake.BorderSizePixel = 0
+    flake.Parent = snowContainer
+    corner(flake, size / 2)
+    
+    local glow = Instance.new("UIStroke")
+    glow.Color = Color3.fromRGB(255, 255, 255)
+    glow.Thickness = 1
+    glow.Transparency = 0.6
+    glow.Parent = flake
+    
+    windowSnowflakes[i] = {
+        dot = flake, glow = glow,
+        x = flake.Position.X.Scale, y = flake.Position.Y.Scale,
+        speed = math.random() * 0.35 + 0.15,
+        wind = math.random() * 0.08 - 0.04,
+        twinkle = math.random() * 10,
+    }
+end
+
+local snowClock = 0
+local snowConn
+local function startSnow()
+    if snowConn then snowConn:Disconnect() end
+    snowContainer.Visible = true
+    snowClock = 0
+    snowConn = RunService.Heartbeat:Connect(function(dt)
+        snowClock += dt
+        for _, flake in ipairs(windowSnowflakes) do
+            flake.y = flake.y + flake.speed * dt
+            flake.x = flake.x + flake.wind * dt + math.sin(snowClock * 1.2 + flake.twinkle) * 0.001
+            if flake.y > 1.1 then flake.y = -0.05; flake.x = math.random() end
+            if flake.x > 1.05 then flake.x = -0.05 end
+            if flake.x < -0.05 then flake.x = 1.05 end
+            flake.dot.Position = UDim2.fromScale(flake.x, flake.y)
+            local brightness = math.sin(snowClock * 2.5 + flake.twinkle) * 0.15 + 0.85
+            flake.dot.BackgroundTransparency = 1 - brightness * 0.5
+            flake.glow.Transparency = 1 - brightness * 0.3
+        end
+    end)
+end
+
+local function stopSnow()
+    if snowConn then snowConn:Disconnect(); snowConn = nil end
+    snowContainer.Visible = false
+end
 
 local function pushUiAboveBackground()
     for _, object in ipairs(main:GetDescendants()) do
-        if object:IsA("GuiObject") and object ~= bg and object.ZIndex <= bg.ZIndex then
+        if object:IsA("GuiObject") and object ~= bg and object ~= snowContainer and object.ZIndex <= bg.ZIndex then
             object.ZIndex = bg.ZIndex + 1
         end
     end
@@ -250,7 +402,7 @@ local function applyPanelTransparency(value)
     value = math.clamp(value, 0, 0.9)
     main.BackgroundTransparency = 1
     for _, object in ipairs(main:GetDescendants()) do
-        if object ~= bg and (object:IsA("Frame") or object:IsA("TextButton") or object:IsA("TextBox")) then
+        if object ~= bg and object ~= snowContainer and not object:IsDescendantOf(snowContainer) and (object:IsA("Frame") or object:IsA("TextButton") or object:IsA("TextBox")) then
             if object.BackgroundTransparency < 1 then
                 object.BackgroundTransparency = value
             end
@@ -261,7 +413,7 @@ end
 pushUiAboveBackground()
 
 main.DescendantAdded:Connect(function(object)
-    if object:IsA("GuiObject") and object ~= bg and object.ZIndex <= bg.ZIndex then
+    if object:IsA("GuiObject") and object ~= bg and object ~= snowContainer and not object:IsDescendantOf(snowContainer) and object.ZIndex <= bg.ZIndex then
         object.ZIndex = bg.ZIndex + 1
     end
 end)
@@ -488,6 +640,7 @@ makeToggle(pVisuals,"Anti AFK","Never get kicked for idling","antiafk")
 
 makeToggle(pFun,"Music Player","Play music in background","musicplayer")
 makeTextbox(pFun,"Music ID","Roblox audio asset ID","musicID","rbxassetid://1842801835")
+makeToggle(pFun,"Snow Effect","❄️ Falling snow inside the window","snowEffect",function(on) if on then startSnow() else stopSnow() end end)
 
 sectionInfo(pSettings,"Choose UI Theme:")
 for themeName,_ in pairs(Themes) do 
@@ -516,192 +669,61 @@ end
 
 local settingsPage = findSettingsPage()
 if settingsPage then
-    local title = Instance.new("TextLabel")
-    title.Name = "SM1LE_BackgroundTitle"
-    title.LayoutOrder = 900
-    title.Size = UDim2.new(1, 0, 0, 0)
-    title.AutomaticSize = Enum.AutomaticSize.Y
-    title.BackgroundTransparency = 1
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 12
-    title.TextColor3 = ACCENT
-    title.TextWrapped = true
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.Text = "Background Image:"
-    title.Parent = settingsPage
+    local t1 = Instance.new("TextLabel"); t1.LayoutOrder = 900; t1.Size = UDim2.new(1,0,0,0); t1.AutomaticSize = Enum.AutomaticSize.Y
+    t1.BackgroundTransparency = 1; t1.Font = Enum.Font.GothamBold; t1.TextSize = 12; t1.TextColor3 = ACCENT; t1.TextWrapped = true
+    t1.TextXAlignment = Enum.TextXAlignment.Left; t1.Text = "Background Image:"; t1.Parent = settingsPage
 
-    local row = Instance.new("Frame")
-    row.Name = "SM1LE_BackgroundInputRow"
-    row.LayoutOrder = 901
-    row.Size = UDim2.new(1, 0, 0, 72)
-    row.BackgroundColor3 = BG2
-    row.BackgroundTransparency = START_PANEL_TRANSPARENCY
-    row.BorderSizePixel = 0
-    row.Parent = settingsPage
-    corner(row, 10)
-
-    local rowStroke = Instance.new("UIStroke")
-    rowStroke.Color = currentTheme.Stroke
-    rowStroke.Transparency = 0.25
-    rowStroke.Parent = row
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -24, 0, 16)
-    label.Position = UDim2.fromOffset(12, 7)
-    label.BackgroundTransparency = 1
-    label.Font = Enum.Font.GothamMedium
-    label.TextSize = 12
-    label.TextColor3 = TXT
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Text = "Roblox background ID / URL"
-    label.Parent = row
-
-    local box = Instance.new("TextBox")
-    box.Size = UDim2.new(1, -24, 0, 26)
-    box.Position = UDim2.fromOffset(12, 28)
-    box.BackgroundColor3 = BG3
-    box.BackgroundTransparency = START_PANEL_TRANSPARENCY
-    box.TextColor3 = TXT
-    box.PlaceholderColor3 = SUB
-    box.Font = Enum.Font.Code
-    box.TextSize = 11
-    box.TextXAlignment = Enum.TextXAlignment.Left
-    box.ClearTextOnFocus = false
-    box.Text = START_BACKGROUND
-    box.PlaceholderText = "6395708472 or Roblox asset link"
-    box.Parent = row
-    corner(box, 8)
-
-    local hint = Instance.new("TextLabel")
-    hint.Size = UDim2.new(1, -24, 0, 12)
-    hint.Position = UDim2.fromOffset(12, 56)
-    hint.BackgroundTransparency = 1
-    hint.Font = Enum.Font.Gotham
-    hint.TextSize = 9
-    hint.TextColor3 = SUB
-    hint.TextXAlignment = Enum.TextXAlignment.Left
-    hint.Text = "Use Roblox IDs/links. External JPG/PNG URLs usually do not load in ImageLabel."
+    local row = Instance.new("Frame"); row.LayoutOrder = 901; row.Size = UDim2.new(1,0,0,72); row.BackgroundColor3 = BG2
+    row.BackgroundTransparency = START_PANEL_TRANSPARENCY; row.BorderSizePixel = 0; row.Parent = settingsPage; corner(row,10)
+    local rs = Instance.new("UIStroke",row); rs.Color = currentTheme.Stroke; rs.Transparency = 0.25
+    local lbl = Instance.new("TextLabel"); lbl.Size = UDim2.new(1,-24,0,16); lbl.Position = UDim2.fromOffset(12,7)
+    lbl.BackgroundTransparency = 1; lbl.Font = Enum.Font.GothamMedium; lbl.TextSize = 12; lbl.TextColor3 = TXT
+    lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.Text = "Roblox background ID / URL"; lbl.Parent = row
+    local box = Instance.new("TextBox"); box.Size = UDim2.new(1,-24,0,26); box.Position = UDim2.fromOffset(12,28)
+    box.BackgroundColor3 = BG3; box.BackgroundTransparency = START_PANEL_TRANSPARENCY; box.TextColor3 = TXT
+    box.PlaceholderColor3 = SUB; box.Font = Enum.Font.Code; box.TextSize = 11; box.TextXAlignment = Enum.TextXAlignment.Left
+    box.ClearTextOnFocus = false; box.Text = START_BACKGROUND; box.PlaceholderText = "6395708472 or Roblox asset link"
+    box.Parent = row; corner(box,8)
+    local hint = Instance.new("TextLabel"); hint.Size = UDim2.new(1,-24,0,12); hint.Position = UDim2.fromOffset(12,56)
+    hint.BackgroundTransparency = 1; hint.Font = Enum.Font.Gotham; hint.TextSize = 9; hint.TextColor3 = SUB
+    hint.TextXAlignment = Enum.TextXAlignment.Left; hint.Text = "Use Roblox IDs/links. External JPG/PNG URLs usually do not load in ImageLabel."
     hint.Parent = row
+    box.FocusLost:Connect(function() bg.Image = toImageContent(box.Text) end)
 
-    local function setBackgroundFromBox()
-        bg.Image = toImageContent(box.Text)
-    end
-
-    box.FocusLost:Connect(setBackgroundFromBox)
-
-    local sliderRow = Instance.new("Frame")
-    sliderRow.Name = "SM1LE_BackgroundTransparencyRow"
-    sliderRow.LayoutOrder = 902
-    sliderRow.Size = UDim2.new(1, 0, 0, 70)
-    sliderRow.BackgroundColor3 = BG2
-    sliderRow.BackgroundTransparency = START_PANEL_TRANSPARENCY
-    sliderRow.BorderSizePixel = 0
-    sliderRow.Parent = settingsPage
-    corner(sliderRow, 10)
-
-    local sliderStroke = Instance.new("UIStroke")
-    sliderStroke.Color = currentTheme.Stroke
-    sliderStroke.Transparency = 0.25
-    sliderStroke.Parent = sliderRow
-
-    local sliderTitle = Instance.new("TextLabel")
-    sliderTitle.Size = UDim2.new(1, -82, 0, 18)
-    sliderTitle.Position = UDim2.fromOffset(12, 8)
-    sliderTitle.BackgroundTransparency = 1
-    sliderTitle.Font = Enum.Font.GothamMedium
-    sliderTitle.TextSize = 12
-    sliderTitle.TextColor3 = TXT
-    sliderTitle.TextXAlignment = Enum.TextXAlignment.Left
-    sliderTitle.Text = "Background Image Transparency"
-    sliderTitle.Parent = sliderRow
-
-    local percentLabel = Instance.new("TextLabel")
-    percentLabel.Size = UDim2.fromOffset(58, 18)
-    percentLabel.Position = UDim2.new(1, -70, 0, 8)
-    percentLabel.BackgroundTransparency = 1
-    percentLabel.Font = Enum.Font.GothamBold
-    percentLabel.TextSize = 12
-    percentLabel.TextColor3 = ACCENT
-    percentLabel.TextXAlignment = Enum.TextXAlignment.Right
-    percentLabel.Parent = sliderRow
-
-    local bar = Instance.new("Frame")
-    bar.Size = UDim2.new(1, -24, 0, 8)
-    bar.Position = UDim2.fromOffset(12, 44)
-    bar.BackgroundColor3 = BG3
-    bar.BorderSizePixel = 0
-    bar.Parent = sliderRow
-    corner(bar, 4)
-
-    local fill = Instance.new("Frame")
-    fill.BackgroundColor3 = ACCENT
-    fill.BorderSizePixel = 0
-    fill.Parent = bar
-    corner(fill, 4)
-
-    local knob = Instance.new("TextButton")
-    knob.Size = UDim2.fromOffset(16, 16)
-    knob.BackgroundColor3 = TXT
-    knob.Text = ""
-    knob.Parent = bar
-    corner(knob, 8)
-
-    local hit = Instance.new("TextButton")
-    hit.Size = UDim2.fromScale(1, 1)
-    hit.BackgroundTransparency = 1
-    hit.Text = ""
-    hit.Parent = bar
-
+    local sRow = Instance.new("Frame"); sRow.LayoutOrder = 902; sRow.Size = UDim2.new(1,0,0,70); sRow.BackgroundColor3 = BG2
+    sRow.BackgroundTransparency = START_PANEL_TRANSPARENCY; sRow.BorderSizePixel = 0; sRow.Parent = settingsPage; corner(sRow,10)
+    local ss = Instance.new("UIStroke",sRow); ss.Color = currentTheme.Stroke; ss.Transparency = 0.25
+    local sT = Instance.new("TextLabel"); sT.Size = UDim2.new(1,-82,0,18); sT.Position = UDim2.fromOffset(12,8)
+    sT.BackgroundTransparency = 1; sT.Font = Enum.Font.GothamMedium; sT.TextSize = 12; sT.TextColor3 = TXT
+    sT.TextXAlignment = Enum.TextXAlignment.Left; sT.Text = "Background Image Transparency"; sT.Parent = sRow
+    local pct = Instance.new("TextLabel"); pct.Size = UDim2.fromOffset(58,18); pct.Position = UDim2.new(1,-70,0,8)
+    pct.BackgroundTransparency = 1; pct.Font = Enum.Font.GothamBold; pct.TextSize = 12; pct.TextColor3 = ACCENT
+    pct.TextXAlignment = Enum.TextXAlignment.Right; pct.Parent = sRow
+    local bar = Instance.new("Frame"); bar.Size = UDim2.new(1,-24,0,8); bar.Position = UDim2.fromOffset(12,44)
+    bar.BackgroundColor3 = BG3; bar.BorderSizePixel = 0; bar.Parent = sRow; corner(bar,4)
+    local fill = Instance.new("Frame"); fill.BackgroundColor3 = ACCENT; fill.BorderSizePixel = 0; fill.Parent = bar; corner(fill,4)
+    local knob = Instance.new("TextButton"); knob.Size = UDim2.fromOffset(16,16); knob.BackgroundColor3 = TXT; knob.Text = ""; knob.Parent = bar; corner(knob,8)
+    local hit = Instance.new("TextButton"); hit.Size = UDim2.fromScale(1,1); hit.BackgroundTransparency = 1; hit.Text = ""; hit.Parent = bar
     local dragging = false
-
     local function setPercent(percent)
-        percent = math.clamp(math.floor(percent + 0.5), 0, 90)
-        local ratio = percent / 90
-        fill.Size = UDim2.fromScale(ratio, 1)
-        knob.Position = UDim2.new(ratio, -8, 0.5, -8)
-        percentLabel.Text = tostring(percent) .. "%"
-        bg.ImageTransparency = percent / 100
+        percent = math.clamp(math.floor(percent+0.5),0,90)
+        local ratio = percent/90
+        fill.Size = UDim2.fromScale(ratio,1); knob.Position = UDim2.new(ratio,-8,0.5,-8)
+        pct.Text = tostring(percent).."%"; bg.ImageTransparency = percent/100
     end
-
     local function updateFromInput(input)
-        local ratio = math.clamp((input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
-        setPercent(ratio * 90)
+        local ratio = math.clamp((input.Position.X-bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
+        setPercent(ratio*90)
     end
-
-    local function beginDrag(input)
-        dragging = true
-        updateFromInput(input)
-    end
-
-    hit.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            beginDrag(input)
-        end
-    end)
-
-    knob.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            beginDrag(input)
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            updateFromInput(input)
-        end
-    end)
-
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
-
-    setPercent(math.floor(START_IMAGE_TRANSPARENCY * 100))
+    hit.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then dragging=true; updateFromInput(input) end end)
+    knob.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then dragging=true; updateFromInput(input) end end)
+    UserInputService.InputChanged:Connect(function(input) if dragging and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then updateFromInput(input) end end)
+    UserInputService.InputEnded:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then dragging=false end end)
+    setPercent(math.floor(START_IMAGE_TRANSPARENCY*100))
 end
 
 sectionInfo(pSettings,"Panel Transparency:")
-makeSlider(pSettings,"BG Transparency","0 = solid, 100 = invisible","bgTransparency",0,90,math.floor(START_PANEL_TRANSPARENCY * 100), function(val) applyTransparency(val / 100) end)
+makeSlider(pSettings,"BG Transparency","0 = solid, 100 = invisible","bgTransparency",0,90,math.floor(START_PANEL_TRANSPARENCY*100), function(val) applyTransparency(val/100) end)
 
 S["theme_cosmic"] = true
 
@@ -715,6 +737,7 @@ UserInputService.InputChanged:Connect(function(i) if drag and (i.UserInputType==
 local mini=false; minB.MouseButton1Click:Connect(function() mini=not mini; TweenService:Create(main,TweenInfo.new(0.2,Enum.EasingStyle.Quad),{Size=mini and UDim2.fromOffset(520,56) or UDim2.fromOffset(520,440)}):Play(); body.Visible=not mini end)
 UserInputService.InputBegan:Connect(function(i,gpe) if gpe then return end; if i.KeyCode==Enum.KeyCode.RightControl then main.Visible=not main.Visible end end)
 
+-- ==================== ИГРОВЫЕ ФИЧИ ====================
 local alive = true; local lastAutofarmPos = nil
 local cachedBalls = {}; local lastBallCache = 0
 
@@ -733,24 +756,18 @@ local function findNearestBall(pos)
 end
 
 local function getPlayerTeam(player)
-    local team = player.Team
-    if team then return team.Name end
-    local char = player.Character
-    if not char then return nil end
-    for _, child in ipairs(char:GetChildren()) do
-        if child:IsA("Folder") and child.Name:lower():find("team") then return child.Name end
-    end
+    local team = player.Team; if team then return team.Name end
+    local char = player.Character; if not char then return nil end
+    for _, child in ipairs(char:GetChildren()) do if child:IsA("Folder") and child.Name:lower():find("team") then return child.Name end end
     local teamAttr = player:GetAttribute("Team") or player:GetAttribute("team")
     if teamAttr then return teamAttr end
     return nil
 end
 
 local function getNearestTeammate()
-    local myTeam = getPlayerTeam(lp)
-    if not myTeam then return nil end
+    local myTeam = getPlayerTeam(lp); if not myTeam then return nil end
     local nearest = nil; local minDist = math.huge
-    local char = lp.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+    local char = lp.Character; if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
     local myPos = char.HumanoidRootPart.Position
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= lp and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
@@ -902,170 +919,140 @@ end)
 
 RunService.Heartbeat:Connect(function()
     if not S.autofarmv2 then return end
-    local char = lp.Character
-    if not char then return end
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-    local hum = char:FindFirstChild("Humanoid")
-    local myTeam = getPlayerTeam(lp)
+    local char=lp.Character; if not char then return end
+    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
+    local hum=char:FindFirstChild("Humanoid")
+    local myTeam=getPlayerTeam(lp)
     if not myTeam or myTeam:lower():find("lobby") then
-        if hum then hum.PlatformStand = false end
-        root.Velocity = Vector3.zero; root.RotVelocity = Vector3.zero
-        return
+        if hum then hum.PlatformStand=false end
+        root.Velocity=Vector3.zero; root.RotVelocity=Vector3.zero; return
     end
-    local teammate = getNearestTeammate()
+    local teammate=getNearestTeammate()
     if teammate and teammate.Character and teammate.Character:FindFirstChild("HumanoidRootPart") then
-        local teammateRoot = teammate.Character.HumanoidRootPart
-        local targetPos = Vector3.new(teammateRoot.Position.X, -5, teammateRoot.Position.Z)
-        root.CFrame = CFrame.new(targetPos)
-        root.Velocity = Vector3.zero; root.RotVelocity = Vector3.zero
-        if hum then hum.PlatformStand = true; hum.AutoRotate = false end
+        local tr=teammate.Character.HumanoidRootPart
+        root.CFrame=CFrame.new(Vector3.new(tr.Position.X,-5,tr.Position.Z))
+        root.Velocity=Vector3.zero; root.RotVelocity=Vector3.zero
+        if hum then hum.PlatformStand=true; hum.AutoRotate=false end
     else
-        local currentPos = root.Position
-        root.CFrame = CFrame.new(Vector3.new(currentPos.X, -10, currentPos.Z))
-        root.Velocity = Vector3.zero; root.RotVelocity = Vector3.zero
-        if hum then hum.PlatformStand = true end
+        root.CFrame=CFrame.new(Vector3.new(root.Position.X,-10,root.Position.Z))
+        root.Velocity=Vector3.zero; root.RotVelocity=Vector3.zero
+        if hum then hum.PlatformStand=true end
     end
 end)
 
-local lastDashTime = 0
-local lastScanTime = 0
+local lastDashTime=0; local lastScanTime=0
 RunService.Heartbeat:Connect(function()
     if not S.autododge then stopAllMovement(); return end
-    if tick() - lastDashTime < S.dodgeCooldown then return end
-    if tick() - lastScanTime < 0.05 then return end
-    lastScanTime = tick()
-    local char = lp.Character
-    if not char then return end
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-    local hum = char:FindFirstChild("Humanoid")
-    if not hum or hum.Health <= 0 then return end
-    local myPos = root.Position
-    local nearestBall = nil
-    local nearestDist = S.dodgeDistance
-    local nearestCrossSide = nil
-    for _, ball in ipairs(getBalls()) do
-        if ball and ball.Parent and ball.Velocity.Magnitude > 5 then
-            local ballPos = ball.Position
-            local dist = (ballPos - myPos).Magnitude
-            local futurePos = ballPos + ball.Velocity * 0.2
-            local futureDist = (futurePos - myPos).Magnitude
-            if futureDist < 4.0 and dist < nearestDist then
-                nearestDist = dist; nearestBall = ball
-                local toBall = (ballPos - myPos).Unit
-                local rightVector = root.CFrame.RightVector
-                local cross = toBall:Cross(Vector3.new(0, 1, 0))
-                local side = cross:Dot(rightVector)
-                nearestCrossSide = side > 0 and "right" or "left"
+    if tick()-lastDashTime<S.dodgeCooldown then return end
+    if tick()-lastScanTime<0.05 then return end
+    lastScanTime=tick()
+    local char=lp.Character; if not char then return end
+    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
+    local hum=char:FindFirstChild("Humanoid"); if not hum or hum.Health<=0 then return end
+    local myPos=root.Position
+    local nearestBall=nil; local nearestDist=S.dodgeDistance; local nearestCrossSide=nil
+    for _,ball in ipairs(getBalls()) do
+        if ball and ball.Parent and ball.Velocity.Magnitude>5 then
+            local ballPos=ball.Position; local dist=(ballPos-myPos).Magnitude
+            local futurePos=ballPos+ball.Velocity*0.2; local futureDist=(futurePos-myPos).Magnitude
+            if futureDist<4.0 and dist<nearestDist then
+                nearestDist=dist; nearestBall=ball
+                local toBall=(ballPos-myPos).Unit
+                local cross=toBall:Cross(Vector3.new(0,1,0))
+                nearestCrossSide=cross:Dot(root.CFrame.RightVector)>0 and "right" or "left"
             end
         end
     end
     if nearestBall then
-        if nearestCrossSide == "right" then performDash("left") else performDash("right") end
-        lastDashTime = tick()
+        if nearestCrossSide=="right" then performDash("left") else performDash("right") end
+        lastDashTime=tick()
     else stopAllMovement() end
 end)
 
 local freezePart
-task.spawn(function()
-    while alive do
-        if S.freezetime then
-            if not freezePart or not freezePart.Parent then freezePart=Instance.new("Part"); freezePart.Name="FreezeZone"; freezePart.Size=Vector3.new(300,300,300)
-                freezePart.Transparency=S.hitboxview and 0.4 or 1; freezePart.Color=Color3.fromRGB(0,150,255)
-                freezePart.Anchored=true; freezePart.CanCollide=false; freezePart.Parent=workspace
-            end
-            freezePart.CFrame=CFrame.new(0,150,0); freezePart.Transparency=S.hitboxview and 0.4 or 1
-            for _,ball in ipairs(getBalls()) do if ball and ball.Parent then ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end end
-        else if freezePart then freezePart:Destroy(); freezePart=nil end end
-        task.wait(0.05)
-    end
-end)
+task.spawn(function() while alive do
+    if S.freezetime then
+        if not freezePart or not freezePart.Parent then freezePart=Instance.new("Part"); freezePart.Name="FreezeZone"; freezePart.Size=Vector3.new(300,300,300)
+            freezePart.Transparency=S.hitboxview and 0.4 or 1; freezePart.Color=Color3.fromRGB(0,150,255)
+            freezePart.Anchored=true; freezePart.CanCollide=false; freezePart.Parent=workspace end
+        freezePart.CFrame=CFrame.new(0,150,0); freezePart.Transparency=S.hitboxview and 0.4 or 1
+        for _,ball in ipairs(getBalls()) do if ball and ball.Parent then ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end end
+    else if freezePart then freezePart:Destroy(); freezePart=nil end end
+    task.wait(0.05)
+end end)
 
 local perfectPart, perfectRing
-task.spawn(function()
-    while alive do
-        if S.perfecttime then
-            local char=lp.Character; if char then local root=char:FindFirstChild("HumanoidRootPart"); if root then
-                if not perfectPart or not perfectPart.Parent then perfectPart=Instance.new("Part"); perfectPart.Name="PerfectZone"; perfectPart.Anchored=true; perfectPart.CanCollide=false; perfectPart.Parent=workspace end
-                perfectPart.Size=Vector3.new(S.perfectRange*2,S.perfectRange*2,S.perfectRange*2); perfectPart.CFrame=root.CFrame; perfectPart.Transparency=S.hitboxview and 0.4 or 1; perfectPart.Color=Color3.fromRGB(255,200,0)
-                if S.perfectring then
-                    if not perfectRing or not perfectRing.Parent then if perfectRing then perfectRing:Destroy() end; perfectRing=Instance.new("Part"); perfectRing.Name="PerfectRing"; perfectRing.Shape=Enum.PartType.Cylinder; perfectRing.Anchored=true; perfectRing.CanCollide=false; perfectRing.Material=Enum.Material.Neon; perfectRing.Parent=workspace end
-                    perfectRing.Size=Vector3.new(S.perfectRange*2,0.3,S.perfectRange*2); perfectRing.CFrame=CFrame.new(root.Position); perfectRing.Transparency=S.hitboxview and 0.4 or 1; perfectRing.Color=Color3.fromRGB(255,200,0)
-                else if perfectRing then perfectRing:Destroy(); perfectRing=nil end end
-                for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-root.Position).Magnitude<S.perfectRange then ball.Velocity=ball.Velocity*0.01; ball.AssemblyLinearVelocity=ball.AssemblyLinearVelocity*0.01 end end
-            end end
-        else if perfectPart then perfectPart:Destroy(); perfectPart=nil end; if perfectRing then perfectRing:Destroy(); perfectRing=nil end end
-        task.wait(0.05)
-    end
-end)
+task.spawn(function() while alive do
+    if S.perfecttime then
+        local char=lp.Character; if char then local root=char:FindFirstChild("HumanoidRootPart"); if root then
+            if not perfectPart or not perfectPart.Parent then perfectPart=Instance.new("Part"); perfectPart.Name="PerfectZone"; perfectPart.Anchored=true; perfectPart.CanCollide=false; perfectPart.Parent=workspace end
+            perfectPart.Size=Vector3.new(S.perfectRange*2,S.perfectRange*2,S.perfectRange*2); perfectPart.CFrame=root.CFrame; perfectPart.Transparency=S.hitboxview and 0.4 or 1; perfectPart.Color=Color3.fromRGB(255,200,0)
+            if S.perfectring then
+                if not perfectRing or not perfectRing.Parent then if perfectRing then perfectRing:Destroy() end; perfectRing=Instance.new("Part"); perfectRing.Name="PerfectRing"; perfectRing.Shape=Enum.PartType.Cylinder; perfectRing.Anchored=true; perfectRing.CanCollide=false; perfectRing.Material=Enum.Material.Neon; perfectRing.Parent=workspace end
+                perfectRing.Size=Vector3.new(S.perfectRange*2,0.3,S.perfectRange*2); perfectRing.CFrame=CFrame.new(root.Position); perfectRing.Transparency=S.hitboxview and 0.4 or 1; perfectRing.Color=Color3.fromRGB(255,200,0)
+            else if perfectRing then perfectRing:Destroy(); perfectRing=nil end end
+            for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-root.Position).Magnitude<S.perfectRange then ball.Velocity=ball.Velocity*0.01; ball.AssemblyLinearVelocity=ball.AssemblyLinearVelocity*0.01 end end
+        end end
+    else if perfectPart then perfectPart:Destroy(); perfectPart=nil end; if perfectRing then perfectRing:Destroy(); perfectRing=nil end end
+    task.wait(0.05)
+end end)
 
-task.spawn(function()
-    while alive do if S.autoskill then local char=lp.Character; local backpack=lp:FindFirstChild("Backpack")
-        if char and backpack then for _,tool in ipairs(backpack:GetChildren()) do if tool:IsA("Tool") and alive and S.autoskill then pcall(function() tool.Parent=char; tool:Activate() end) end end
-        for _,tool in ipairs(char:GetChildren()) do if tool:IsA("Tool") and alive and S.autoskill then pcall(function() tool:Activate() end) end end end end
-        task.wait(0.3)
-    end
-end)
+task.spawn(function() while alive do if S.autoskill then local char=lp.Character; local backpack=lp:FindFirstChild("Backpack")
+    if char and backpack then for _,tool in ipairs(backpack:GetChildren()) do if tool:IsA("Tool") and alive and S.autoskill then pcall(function() tool.Parent=char; tool:Activate() end) end end
+    for _,tool in ipairs(char:GetChildren()) do if tool:IsA("Tool") and alive and S.autoskill then pcall(function() tool:Activate() end) end end end end
+    task.wait(0.3)
+end end)
 
 local auraBillboard, auraText
-task.spawn(function()
-    while alive do if S.aura then local char=lp.Character; if char then local head=char:FindFirstChild("Head"); if head then
-        if not auraBillboard or not auraBillboard.Parent then if auraBillboard then auraBillboard:Destroy() end
-            auraBillboard=Instance.new("BillboardGui"); auraBillboard.Size=UDim2.new(0,200,0,60); auraBillboard.StudsOffset=Vector3.new(0,3,0); auraBillboard.Adornee=head; auraBillboard.Parent=char
-            auraText=Instance.new("TextLabel"); auraText.BackgroundTransparency=1; auraText.BorderSizePixel=0; auraText.Text=S.auraText; auraText.Font=Enum.Font.GothamBlack; auraText.TextSize=28; auraText.TextColor3=ACCENT; auraText.Size=UDim2.new(1,0,1,0)
-            local s1=Instance.new("UIStroke",auraText); s1.Color=Color3.new(0,0,0); s1.Thickness=3
-            local s2=Instance.new("UIStroke",auraText); s2.Color=Color3.fromRGB(255,255,255); s2.Thickness=1
-            auraText.Parent=auraBillboard
-        end
-        if math.random(0,100)<10 then auraText.Text=({"NOHOPE","GIVEUP","BURNINHELL"})[math.random(1,3)] else auraText.Text=S.auraText end
-        auraText.Position=UDim2.new(0,math.random(-3,3),0,math.random(-3,3))
-    end end
-    else if auraBillboard then auraBillboard:Destroy(); auraBillboard=nil; auraText=nil end end
-    task.wait(0.05) end
-end)
+task.spawn(function() while alive do if S.aura then local char=lp.Character; if char then local head=char:FindFirstChild("Head"); if head then
+    if not auraBillboard or not auraBillboard.Parent then if auraBillboard then auraBillboard:Destroy() end
+        auraBillboard=Instance.new("BillboardGui"); auraBillboard.Size=UDim2.new(0,200,0,60); auraBillboard.StudsOffset=Vector3.new(0,3,0); auraBillboard.Adornee=head; auraBillboard.Parent=char
+        auraText=Instance.new("TextLabel"); auraText.BackgroundTransparency=1; auraText.BorderSizePixel=0; auraText.Text=S.auraText; auraText.Font=Enum.Font.GothamBlack; auraText.TextSize=28; auraText.TextColor3=ACCENT; auraText.Size=UDim2.new(1,0,1,0)
+        Instance.new("UIStroke",auraText).Color=Color3.new(0,0,0); auraText:FindFirstChildOfClass("UIStroke").Thickness=3
+        local s2=Instance.new("UIStroke",auraText); s2.Color=Color3.fromRGB(255,255,255); s2.Thickness=1
+        auraText.Parent=auraBillboard
+    end
+    if math.random(0,100)<10 then auraText.Text=({"NOHOPE","GIVEUP","BURNINHELL"})[math.random(1,3)] else auraText.Text=S.auraText end
+    auraText.Position=UDim2.new(0,math.random(-3,3),0,math.random(-3,3))
+end end
+else if auraBillboard then auraBillboard:Destroy(); auraBillboard=nil; auraText=nil end end
+task.wait(0.05) end end)
 
 local espObjects = {}
-task.spawn(function()
-    local rainbowHue=0
-    while alive do if S.esp then rainbowHue=(rainbowHue+0.01)%1
-        for _,player in ipairs(Players:GetPlayers()) do if player~=lp and player.Character then local hum=player.Character:FindFirstChild("Humanoid"); if hum and hum.Health>0 then
-            if not espObjects[player] then local h=Instance.new("Highlight"); h.FillColor=Color3.fromRGB(255,80,80); h.OutlineColor=Color3.fromRGB(255,255,255); h.FillTransparency=0.4; h.Parent=player.Character; espObjects[player]=h end
-            if S.rainbowesp and espObjects[player] then local hue=(rainbowHue+player.UserId%100/100)%1; espObjects[player].FillColor=Color3.fromHSV(hue,1,1); espObjects[player].OutlineColor=Color3.fromHSV((hue+0.5)%1,1,1)
-            elseif not S.rainbowesp and espObjects[player] then espObjects[player].FillColor=Color3.fromRGB(255,80,80); espObjects[player].OutlineColor=Color3.fromRGB(255,255,255) end
-        end end end
-    else for k,v in pairs(espObjects) do pcall(function() v:Destroy() end); espObjects[k]=nil end end
-    if S.espballs then for _,ball in ipairs(getBalls()) do if ball and ball.Parent and not ball:FindFirstChild("BallESP") then local h=Instance.new("Highlight"); h.Name="BallESP"; h.FillColor=Color3.fromRGB(255,255,0); h.OutlineColor=Color3.fromRGB(255,0,0); h.FillTransparency=0.5; h.Parent=ball end
-        if S.rainbowesp then local ballEsp=ball:FindFirstChild("BallESP"); if ballEsp then local hue=(rainbowHue+#ball.Name%10/10)%1; ballEsp.FillColor=Color3.fromHSV(hue,1,1); ballEsp.OutlineColor=Color3.fromHSV((hue+0.5)%1,1,1) end end end
-    else for _,ball in ipairs(getBalls()) do local esp=ball and ball:FindFirstChild("BallESP"); if esp then esp:Destroy() end end end
-    task.wait(0.05) end
-end)
+task.spawn(function() local rainbowHue=0
+while alive do if S.esp then rainbowHue=(rainbowHue+0.01)%1
+    for _,player in ipairs(Players:GetPlayers()) do if player~=lp and player.Character then local hum=player.Character:FindFirstChild("Humanoid"); if hum and hum.Health>0 then
+        if not espObjects[player] then local h=Instance.new("Highlight"); h.FillColor=Color3.fromRGB(255,80,80); h.OutlineColor=Color3.fromRGB(255,255,255); h.FillTransparency=0.4; h.Parent=player.Character; espObjects[player]=h end
+        if S.rainbowesp and espObjects[player] then local hue=(rainbowHue+player.UserId%100/100)%1; espObjects[player].FillColor=Color3.fromHSV(hue,1,1); espObjects[player].OutlineColor=Color3.fromHSV((hue+0.5)%1,1,1)
+        elseif not S.rainbowesp and espObjects[player] then espObjects[player].FillColor=Color3.fromRGB(255,80,80); espObjects[player].OutlineColor=Color3.fromRGB(255,255,255) end
+    end end end
+else for k,v in pairs(espObjects) do pcall(function() v:Destroy() end); espObjects[k]=nil end end
+if S.espballs then for _,ball in ipairs(getBalls()) do if ball and ball.Parent and not ball:FindFirstChild("BallESP") then local h=Instance.new("Highlight"); h.Name="BallESP"; h.FillColor=Color3.fromRGB(255,255,0); h.OutlineColor=Color3.fromRGB(255,0,0); h.FillTransparency=0.5; h.Parent=ball end
+    if S.rainbowesp then local ballEsp=ball:FindFirstChild("BallESP"); if ballEsp then local hue=(rainbowHue+#ball.Name%10/10)%1; ballEsp.FillColor=Color3.fromHSV(hue,1,1); ballEsp.OutlineColor=Color3.fromHSV((hue+0.5)%1,1,1) end end end
+else for _,ball in ipairs(getBalls()) do local esp=ball and ball:FindFirstChild("BallESP"); if esp then esp:Destroy() end end end
+task.wait(0.05) end end)
 
 local musicSound
-task.spawn(function()
-    while alive do if S.musicplayer then if not musicSound or not musicSound.Parent then if musicSound then musicSound:Destroy() end
-        musicSound=Instance.new("Sound"); musicSound.Name="MusicPlayer"; musicSound.SoundId=S.musicID; musicSound.Looped=true; musicSound.Volume=1; musicSound.Parent=workspace; musicSound:Play()
-    elseif musicSound.SoundId~=S.musicID then musicSound.SoundId=S.musicID; musicSound:Play() end
-    else if musicSound then musicSound:Stop(); musicSound:Destroy(); musicSound=nil end end
-    task.wait(1) end
-end)
+task.spawn(function() while alive do if S.musicplayer then if not musicSound or not musicSound.Parent then if musicSound then musicSound:Destroy() end
+    musicSound=Instance.new("Sound"); musicSound.Name="MusicPlayer"; musicSound.SoundId=S.musicID; musicSound.Looped=true; musicSound.Volume=1; musicSound.Parent=workspace; musicSound:Play()
+elseif musicSound.SoundId~=S.musicID then musicSound.SoundId=S.musicID; musicSound:Play() end
+else if musicSound then musicSound:Stop(); musicSound:Destroy(); musicSound=nil end end
+task.wait(1) end end)
 
 lp.Idled:Connect(function() if S.antiafk then VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end end)
 
-task.spawn(function()
-    while alive do local char=lp.Character; local hp="?"; if char then local hum=char:FindFirstChild("Humanoid"); if hum then hp=math.floor(hum.Health) end end
-    local tc=0; for _ in pairs(trappedBalls) do tc+=1 end
-    stats.Text=string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s | Redirect: %s | Dodge: %s",
-        hp,#getBalls(),tc, S.godmode and "✅" or "❌", S.freezetime and "✅" or "❌", S.ballpet and "✅" or "❌", S.deleteball and "✅" or "❌", S.ballredirect and "✅" or "❌", S.autododge and "✅" or "❌")
-    task.wait(0.5) end
-end)
+task.spawn(function() while alive do local char=lp.Character; local hp="?"; if char then local hum=char:FindFirstChild("Humanoid"); if hum then hp=math.floor(hum.Health) end end
+local tc=0; for _ in pairs(trappedBalls) do tc+=1 end
+stats.Text=string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s | Redirect: %s | Dodge: %s | ❄️Snow: %s",
+    hp,#getBalls(),tc, S.godmode and "✅" or "❌", S.freezetime and "✅" or "❌", S.ballpet and "✅" or "❌", S.deleteball and "✅" or "❌", S.ballredirect and "✅" or "❌", S.autododge and "✅" or "❌", S.snowEffect and "✅" or "❌")
+task.wait(0.5) end end)
 
 closeB.MouseButton1Click:Connect(function() if _G.Sm1leHub then _G.Sm1leHub.Destroy() end end)
 
 _G.Sm1leHub = {
     Destroy = function()
         alive=false; for k in pairs(S) do if type(S[k])=="boolean" then S[k]=false end end
-        stopAllMovement()
+        stopAllMovement(); stopSnow()
         if gui then gui:Destroy() end
         if godPart then godPart:Destroy() end
         if deletePart then deletePart:Destroy() end
