@@ -11,6 +11,7 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
+local VIM = game:GetService("VirtualInputManager")
 local lp = Players.LocalPlayer
 
 -- ИНТРО
@@ -78,8 +79,8 @@ introGui:Destroy()
 
 -- ОСНОВНОЙ СКРИПТ
 local S = {
-    godmode = false, jumppower = false, speed = false, autofarm = false,
-    freezetime = false, perfecttime = false, deleteball = false, autoskill = false,
+    godmode = false, jumppower = false, speed = false, autofarm = false, autofarmv2 = false,
+    autododge = false, freezetime = false, perfecttime = false, deleteball = false, autoskill = false,
     esp = false, espballs = false, antiafk = false, noclip = false,
     hitboxview = false, aura = false, spinbot = false, ballpet = false,
     perfectring = false, reset = false, rainbowesp = false, musicplayer = false,
@@ -87,7 +88,7 @@ local S = {
     jumpVal = 100, speedVal = 50, freezeStr = 2, tpY = 80,
     perfectRange = 10, petRange = 8, auraText = "John Doe",
     musicID = "rbxassetid://1842801835", spinSpeed = 10, theme = "Blood",
-    bgTransparency = 7
+    bgTransparency = 7, dodgeDistance = 15, dodgeCooldown = 0.3
 }
 
 local Themes = {
@@ -351,8 +352,11 @@ makeSlider(pPlayer,"Spin Speed","Rotation speed","spinSpeed",1,50,10)
 makeToggle(pPlayer,"Reset","Kill yourself to respawn","reset",function(on) if on and lp.Character then lp.Character:BreakJoints() task.wait(0.1) S.reset=false end end)
 
 makeToggle(pFarm,"Auto Farm (AFK)","Hang safely behind random player","autofarm")
+makeToggle(pFarm,"Auto Farm V2","Under map follow teammate, idle in lobby","autofarmv2")
+makeToggle(pFarm,"Auto Dodge","Auto dodge incoming balls (Q/E)","autododge")
 makeToggle(pFarm,"Auto Skill","Auto-use all inventory abilities","autoskill")
 makeSlider(pFarm,"Distance Behind","How far behind player to hang","tpY",30,200,80)
+makeSlider(pFarm,"Dodge Distance","How close ball must be to dodge","dodgeDistance",5,30,15)
 
 makeToggle(pBall,"Freeze Time","FREEZE all balls completely","freezetime")
 makeToggle(pBall,"Perfect Time","Precision slow zone near you","perfecttime")
@@ -416,6 +420,48 @@ local function findNearestBall(pos)
     return nearest,minDist
 end
 
+-- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ КОМАНДЫ ИГРОКА
+local function getPlayerTeam(player)
+    local team = player.Team
+    if team then return team.Name end
+    
+    local char = player.Character
+    if not char then return nil end
+    
+    for _, child in ipairs(char:GetChildren()) do
+        if child:IsA("Folder") and child.Name:lower():find("team") then
+            return child.Name
+        end
+    end
+    
+    local teamAttr = player:GetAttribute("Team") or player:GetAttribute("team")
+    if teamAttr then return teamAttr end
+    
+    return nil
+end
+
+-- ФУНКЦИЯ ПОЛУЧЕНИЯ БЛИЖАЙШЕГО ТИММЕЙТА
+local function getNearestTeammate()
+    local myTeam = getPlayerTeam(lp)
+    if not myTeam then return nil end
+    
+    local nearest = nil; local minDist = math.huge
+    local char = lp.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+    local myPos = char.HumanoidRootPart.Position
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= lp and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local playerTeam = getPlayerTeam(player)
+            if playerTeam == myTeam then
+                local dist = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
+                if dist < minDist then minDist = dist; nearest = player end
+            end
+        end
+    end
+    return nearest
+end
+
 local function getNearestPlayer()
     local nearest = nil; local minDist = math.huge
     local char = lp.Character; if not char then return nil end
@@ -428,6 +474,29 @@ local function getNearestPlayer()
         end
     end
     return nearest
+end
+
+-- ФУНКЦИИ УПРАВЛЕНИЯ КЛАВИШАМИ ДЛЯ AUTO DODGE
+local function pressKey(keyCode, isDown)
+    pcall(function()
+        VIM:SendKeyEvent(isDown, keyCode, false, nil)
+    end)
+end
+
+local function stopAllMovement()
+    pressKey(Enum.KeyCode.W, false)
+    pressKey(Enum.KeyCode.A, false)
+    pressKey(Enum.KeyCode.S, false)
+    pressKey(Enum.KeyCode.D, false)
+    pressKey(Enum.KeyCode.LeftShift, false)
+end
+
+local function performDash(direction)
+    local key = direction == "left" and Enum.KeyCode.Q or Enum.KeyCode.E
+    pressKey(key, true)
+    task.wait(0.02)
+    pressKey(key, false)
+    return true
 end
 
 RunService.Heartbeat:Connect(function()
@@ -529,6 +598,7 @@ RunService.Stepped:Connect(function()
     local char=lp.Character; if char then for _,p in ipairs(char:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide=false end end end
 end)
 
+-- AUTO FARM (Original)
 RunService.Heartbeat:Connect(function()
     if not S.autofarm then if lastAutofarmPos then local char=lp.Character; if char then local root=char:FindFirstChild("HumanoidRootPart"); if root then local nearestBall=findNearestBall(root.Position); if nearestBall then root.CFrame=CFrame.new(nearestBall.Position+Vector3.new(0,15,0)); root.Velocity=Vector3.zero end; local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=false end end end; lastAutofarmPos=nil end; return end
     local char=lp.Character; if not char then return end
@@ -538,6 +608,123 @@ RunService.Heartbeat:Connect(function()
         local moveDir=(targetPos-root.Position); if moveDir.Magnitude>1 then root.Velocity=moveDir.Unit*50 else root.Velocity=Vector3.new(0,0.5,0) end
         local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=true end; lastAutofarmPos=targetPos
     else root.Velocity=Vector3.new(0,0.5,0); local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=true end end
+end)
+
+-- AUTO FARM V2 (ПОД КАРТОЙ НА Y = -10 ПОД ТИММЕЙТОМ)
+RunService.Heartbeat:Connect(function()
+    if not S.autofarmv2 then return end
+    
+    local char = lp.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    local hum = char:FindFirstChild("Humanoid")
+    
+    local myTeam = getPlayerTeam(lp)
+    
+    -- Если игрок в лобби — просто стоим на месте
+    if not myTeam or myTeam:lower():find("lobby") then
+        if hum then hum.PlatformStand = false end
+        root.Velocity = Vector3.zero
+        root.RotVelocity = Vector3.zero
+        return
+    end
+    
+    -- Игрок в команде Playing — телепортируемся под карту и следуем за тиммейтом
+    local teammate = getNearestTeammate()
+    if teammate and teammate.Character and teammate.Character:FindFirstChild("HumanoidRootPart") then
+        local teammateRoot = teammate.Character.HumanoidRootPart
+        
+        -- Позиция под тиммейтом на Y = -10 (под картой)
+        local targetPos = Vector3.new(teammateRoot.Position.X, -5, teammateRoot.Position.Z)
+        
+        -- Телепортируемся под тиммейта
+        root.CFrame = CFrame.new(targetPos)
+        root.Velocity = Vector3.zero
+        root.RotVelocity = Vector3.zero
+        
+        -- Отключаем физику чтобы висеть под картой
+        if hum then
+            hum.PlatformStand = true
+            hum.AutoRotate = false
+        end
+    else
+        -- Если нет тиммейтов — просто висим под картой на месте
+        local currentPos = root.Position
+        root.CFrame = CFrame.new(Vector3.new(currentPos.X, -10, currentPos.Z))
+        root.Velocity = Vector3.zero
+        root.RotVelocity = Vector3.zero
+        if hum then hum.PlatformStand = true end
+    end
+end)
+
+-- AUTO DODGE (КАК В ТВОЁМ ПРИМЕРЕ — ЧЕРЕЗ VirtualInputManager)
+local lastDashTime = 0
+local lastScanTime = 0
+
+RunService.Heartbeat:Connect(function()
+    if not S.autododge then
+        stopAllMovement()
+        return
+    end
+    
+    -- Проверяем кулдаун
+    if tick() - lastDashTime < S.dodgeCooldown then return end
+    
+    -- Сканируем с интервалом
+    if tick() - lastScanTime < 0.05 then return end
+    lastScanTime = tick()
+    
+    local char = lp.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    local hum = char:FindFirstChild("Humanoid")
+    if not hum or hum.Health <= 0 then return end
+    
+    local myPos = root.Position
+    local nearestBall = nil
+    local nearestDist = S.dodgeDistance
+    local nearestCrossSide = nil
+    
+    -- Сканируем все мячи
+    for _, ball in ipairs(getBalls()) do
+        if ball and ball.Parent and ball.Velocity.Magnitude > 5 then
+            local ballPos = ball.Position
+            local dist = (ballPos - myPos).Magnitude
+            
+            -- Предсказываем позицию через 0.2 секунды
+            local futurePos = ballPos + ball.Velocity * 0.2
+            local futureDist = (futurePos - myPos).Magnitude
+            
+            -- Если мяч будет близко через 0.2 сек
+            if futureDist < 4.0 and dist < nearestDist then
+                nearestDist = dist
+                nearestBall = ball
+                
+                -- Определяем с какой стороны мяч
+                local toBall = (ballPos - myPos).Unit
+                local rightVector = root.CFrame.RightVector
+                local cross = toBall:Cross(Vector3.new(0, 1, 0))
+                local side = cross:Dot(rightVector)
+                nearestCrossSide = side > 0 and "right" or "left"
+            end
+        end
+    end
+    
+    -- Если нашли угрозу — выполняем рывок
+    if nearestBall then
+        if nearestCrossSide == "right" then
+            -- Мяч справа — рывок влево (Q)
+            performDash("left")
+        else
+            -- Мяч слева — рывок вправо (E)
+            performDash("right")
+        end
+        lastDashTime = tick()
+    else
+        stopAllMovement()
+    end
 end)
 
 local freezePart
@@ -628,8 +815,8 @@ lp.Idled:Connect(function() if S.antiafk then VirtualUser:CaptureController(); V
 task.spawn(function()
     while alive do local char=lp.Character; local hp="?"; if char then local hum=char:FindFirstChild("Humanoid"); if hum then hp=math.floor(hum.Health) end end
     local tc=0; for _ in pairs(trappedBalls) do tc+=1 end
-    stats.Text=string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s | Redirect: %s",
-        hp,#getBalls(),tc, S.godmode and "✅" or "❌", S.freezetime and "✅" or "❌", S.ballpet and "✅" or "❌", S.deleteball and "✅" or "❌", S.ballredirect and "✅" or "❌")
+    stats.Text=string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s | Redirect: %s | Dodge: %s",
+        hp,#getBalls(),tc, S.godmode and "✅" or "❌", S.freezetime and "✅" or "❌", S.ballpet and "✅" or "❌", S.deleteball and "✅" or "❌", S.ballredirect and "✅" or "❌", S.autododge and "✅" or "❌")
     task.wait(0.5) end
 end)
 
@@ -638,6 +825,7 @@ closeB.MouseButton1Click:Connect(function() if _G.Sm1leHub then _G.Sm1leHub.Dest
 _G.Sm1leHub = {
     Destroy = function()
         alive=false; for k in pairs(S) do if type(S[k])=="boolean" then S[k]=false end end
+        stopAllMovement()
         if gui then gui:Destroy() end
         if godPart then godPart:Destroy() end
         if deletePart then deletePart:Destroy() end
