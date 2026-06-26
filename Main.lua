@@ -1,6 +1,6 @@
 --==================================================================
--- 🏃 SM1LE HUB v2.0 — Dodge or Die ONLY
--- RightCtrl hides, — minimizes, ✕ closes.
+-- 📌📜 SM1LE HUB v2.0 — Dodge or Die ONLY
+-- By S M 1 L E R 📌 
 --==================================================================
 
 if game.PlaceId ~= 131794278839305 then return end
@@ -14,7 +14,7 @@ local VirtualUser = game:GetService("VirtualUser")
 local VIM = game:GetService("VirtualInputManager")
 local lp = Players.LocalPlayer
 
--- ИНТРО
+-- ИНТРО (Cosmic theme)
 local introGui = Instance.new("ScreenGui")
 introGui.Name = "Sm1leIntro"
 introGui.ResetOnSpawn = false
@@ -23,9 +23,18 @@ introGui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
 
 local introFrame = Instance.new("Frame")
 introFrame.Size = UDim2.new(1, 0, 1, 0)
-introFrame.BackgroundColor3 = Color3.fromRGB(10, 2, 2)
+introFrame.BackgroundColor3 = Color3.fromRGB(5, 3, 12)
 introFrame.BorderSizePixel = 0
 introFrame.Parent = introGui
+
+local introGradient = Instance.new("UIGradient")
+introGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 3, 12)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 10, 60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 3, 12))
+})
+introGradient.Rotation = 45
+introGradient.Parent = introFrame
 
 local introTitle = Instance.new("TextLabel")
 introTitle.Size = UDim2.new(0, 500, 0, 100)
@@ -34,9 +43,17 @@ introTitle.BackgroundTransparency = 1
 introTitle.Text = "SM1LE HUB"
 introTitle.Font = Enum.Font.GothamBlack
 introTitle.TextSize = 60
-introTitle.TextColor3 = Color3.fromRGB(220, 20, 20)
+introTitle.TextColor3 = Color3.fromRGB(200, 150, 255)
 introTitle.TextTransparency = 1
 introTitle.Parent = introFrame
+
+local titleGradient = Instance.new("UIGradient")
+titleGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 150, 255)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 255))
+})
+titleGradient.Parent = introTitle
 
 local introSubtitle = Instance.new("TextLabel")
 introSubtitle.Size = UDim2.new(0, 300, 0, 40)
@@ -45,9 +62,17 @@ introSubtitle.BackgroundTransparency = 1
 introSubtitle.Text = "Dodge or Die"
 introSubtitle.Font = Enum.Font.Gotham
 introSubtitle.TextSize = 24
-introSubtitle.TextColor3 = Color3.fromRGB(200, 140, 140)
+introSubtitle.TextColor3 = Color3.fromRGB(170, 155, 210)
 introSubtitle.TextTransparency = 1
 introSubtitle.Parent = introFrame
+
+local subGradient = Instance.new("UIGradient")
+subGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(170, 155, 210)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220, 210, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(170, 155, 210))
+})
+subGradient.Parent = introSubtitle
 
 local introVersion = Instance.new("TextLabel")
 introVersion.Size = UDim2.new(0, 200, 0, 25)
@@ -56,9 +81,17 @@ introVersion.BackgroundTransparency = 1
 introVersion.Text = "by SM1LER"
 introVersion.Font = Enum.Font.GothamMedium
 introVersion.TextSize = 16
-introVersion.TextColor3 = Color3.fromRGB(255, 70, 70)
+introVersion.TextColor3 = Color3.fromRGB(180, 130, 255)
 introVersion.TextTransparency = 1
 introVersion.Parent = introFrame
+
+local verGradient = Instance.new("UIGradient")
+verGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 130, 255)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 220, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 130, 255))
+})
+verGradient.Parent = introVersion
 
 local fadeIn = TweenService:Create(introTitle, TweenInfo.new(1, Enum.EasingStyle.Quint), {TextTransparency = 0})
 local fadeInSub = TweenService:Create(introSubtitle, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.In, 0.4), {TextTransparency = 0})
@@ -78,6 +111,10 @@ fadeOut.Completed:Wait()
 introGui:Destroy()
 
 -- ОСНОВНОЙ СКРИПТ
+local START_BACKGROUND = "https://create.roblox.com/store/asset/6395708472/Black-Hole"
+local START_PANEL_TRANSPARENCY = 0.5
+local START_IMAGE_TRANSPARENCY = 0.05
+
 local S = {
     godmode = false, jumppower = false, speed = false, autofarm = false, autofarmv2 = false,
     autododge = false, freezetime = false, perfecttime = false, deleteball = false, autoskill = false,
@@ -87,8 +124,8 @@ local S = {
     ballredirect = false,
     jumpVal = 100, speedVal = 50, freezeStr = 2, tpY = 80,
     perfectRange = 10, petRange = 8, auraText = "John Doe",
-    musicID = "rbxassetid://1842801835", spinSpeed = 10, theme = "Blood",
-    bgTransparency = 7, dodgeDistance = 15, dodgeCooldown = 0.3
+    musicID = "rbxassetid://1842801835", spinSpeed = 10, theme = "Cosmic",
+    bgTransparency = math.floor(START_PANEL_TRANSPARENCY * 100), dodgeDistance = 15, dodgeCooldown = 0.3
 }
 
 local Themes = {
@@ -139,6 +176,14 @@ local Themes = {
         Stroke = Color3.fromRGB(10,80,80), SwitchOff = Color3.fromRGB(8,32,32),
         TitleGrad1 = Color3.fromRGB(0,255,255), TitleGrad2 = Color3.fromRGB(0,30,30),
         ByGrad1 = Color3.fromRGB(50,255,255), ByGrad2 = Color3.fromRGB(0,30,30)
+    },
+    Cosmic = {
+        ACCENT = Color3.fromRGB(180,130,255), ACCENT2 = Color3.fromRGB(0,0,0),
+        BG = Color3.fromRGB(5,3,12), BG2 = Color3.fromRGB(10,5,22), BG3 = Color3.fromRGB(18,10,35),
+        TXT = Color3.fromRGB(245,240,255), SUB = Color3.fromRGB(170,155,210),
+        Stroke = Color3.fromRGB(80,50,140), SwitchOff = Color3.fromRGB(18,10,35),
+        TitleGrad1 = Color3.fromRGB(200,150,255), TitleGrad2 = Color3.fromRGB(30,10,60),
+        ByGrad1 = Color3.fromRGB(210,170,255), ByGrad2 = Color3.fromRGB(30,10,60)
     }
 }
 
@@ -151,6 +196,23 @@ local function corner(p,r) local c=Instance.new("UICorner") c.CornerRadius=UDim.
 local function pad(p,t,b,l,r) local u=Instance.new("UIPadding") u.PaddingTop=UDim.new(0,t) u.PaddingBottom=UDim.new(0,b) u.PaddingLeft=UDim.new(0,l) u.PaddingRight=UDim.new(0,r) u.Parent=p return u end
 local function gradient(p,c1,c2,rot) local g=Instance.new("UIGradient") g.Color=ColorSequence.new(c1,c2) g.Rotation=rot or 0 g.Parent=p return g end
 
+local function getAssetId(input)
+    local text = tostring(input or "")
+    return text:match("rbxassetid://(%d+)")
+        or text:match("asset/(%d+)")
+        or text:match("library/(%d+)")
+        or text:match("[?&]id=(%d+)")
+        or text:match("^(%d+)$")
+end
+
+local function toImageContent(input)
+    local id = getAssetId(input)
+    if id then
+        return "rbxthumb://type=Asset&id=" .. id .. "&w=420&h=420"
+    end
+    return tostring(input or "")
+end
+
 local parent = (gethui and gethui()) or game:GetService("CoreGui")
 local gui = Instance.new("ScreenGui")
 gui.Name = "Sm1leHub"; gui.ResetOnSpawn = false; gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; gui.IgnoreGuiInset = true; gui.Parent = parent
@@ -158,14 +220,57 @@ gui.Name = "Sm1leHub"; gui.ResetOnSpawn = false; gui.ZIndexBehavior = Enum.ZInde
 local main = Instance.new("Frame")
 main.Size = UDim2.fromOffset(520,440); main.Position = UDim2.fromScale(0.5,0.5); main.AnchorPoint = Vector2.new(0.5,0.5)
 main.BackgroundColor3 = BG; main.BorderSizePixel = 0; main.ClipsDescendants = true; main.Parent = gui; corner(main,16)
-main.BackgroundTransparency = 0.07
+main.BackgroundTransparency = 1
 
 local mst = Instance.new("UIStroke",main); mst.Color = currentTheme.Stroke; mst.Thickness = 1.5; mst.Transparency = 0
 
+-- WORKING BACKGROUND
+local bg = Instance.new("ImageLabel")
+bg.Name = "SM1LE_WorkingBackground"
+bg.BackgroundTransparency = 1
+bg.BorderSizePixel = 0
+bg.Position = UDim2.fromScale(0, 0)
+bg.Size = UDim2.fromScale(1, 1)
+bg.Image = toImageContent(START_BACKGROUND)
+bg.ScaleType = Enum.ScaleType.Crop
+bg.ImageTransparency = START_IMAGE_TRANSPARENCY
+bg.ZIndex = 1
+bg.Parent = main
+corner(bg, 16)
+
+local function pushUiAboveBackground()
+    for _, object in ipairs(main:GetDescendants()) do
+        if object:IsA("GuiObject") and object ~= bg and object.ZIndex <= bg.ZIndex then
+            object.ZIndex = bg.ZIndex + 1
+        end
+    end
+end
+
+local function applyPanelTransparency(value)
+    value = math.clamp(value, 0, 0.9)
+    main.BackgroundTransparency = 1
+    for _, object in ipairs(main:GetDescendants()) do
+        if object ~= bg and (object:IsA("Frame") or object:IsA("TextButton") or object:IsA("TextBox")) then
+            if object.BackgroundTransparency < 1 then
+                object.BackgroundTransparency = value
+            end
+        end
+    end
+end
+
+pushUiAboveBackground()
+
+main.DescendantAdded:Connect(function(object)
+    if object:IsA("GuiObject") and object ~= bg and object.ZIndex <= bg.ZIndex then
+        object.ZIndex = bg.ZIndex + 1
+    end
+end)
+
+-- HEADER
 local header = Instance.new("Frame"); header.Size = UDim2.new(1,0,0,56); header.BackgroundColor3 = BG2; header.BorderSizePixel = 0; header.Parent = main; corner(header,16)
-header.BackgroundTransparency = 0.07
+header.BackgroundTransparency = START_PANEL_TRANSPARENCY
 local hfix = Instance.new("Frame"); hfix.Size = UDim2.new(1,0,0,16); hfix.Position = UDim2.new(0,0,1,-16); hfix.BackgroundColor3 = BG2; hfix.BorderSizePixel = 0; hfix.Parent = header
-hfix.BackgroundTransparency = 0.07
+hfix.BackgroundTransparency = START_PANEL_TRANSPARENCY
 
 local logo = Instance.new("TextLabel"); logo.Size = UDim2.fromOffset(40,40); logo.Position = UDim2.fromOffset(14,8)
 logo.BackgroundTransparency = 1; logo.Font = Enum.Font.GothamBold; logo.Text = "🏃"; logo.TextSize = 28; logo.Parent = header
@@ -190,7 +295,7 @@ local closeB = hbtn("✕",-40); local minB = hbtn("—",-74)
 
 local body = Instance.new("Frame"); body.Size = UDim2.new(1,0,1,-56); body.Position = UDim2.fromOffset(0,56); body.BackgroundTransparency = 1; body.Parent = main
 local side = Instance.new("Frame"); side.Size = UDim2.new(0,140,1,0); side.BackgroundColor3 = BG2; side.BorderSizePixel = 0; side.Parent = body; pad(side,12,12,10,10)
-side.BackgroundTransparency = 0.07
+side.BackgroundTransparency = START_PANEL_TRANSPARENCY
 local sl = Instance.new("UIListLayout",side); sl.Padding = UDim.new(0,6); sl.SortOrder = Enum.SortOrder.LayoutOrder
 local content = Instance.new("Frame"); content.Size = UDim2.new(1,-140,1,0); content.Position = UDim2.fromOffset(140,0); content.BackgroundTransparency = 1; content.Parent = body
 
@@ -209,7 +314,7 @@ end
 local tabOrder = 0
 local function makeTab(name,icon)
     tabOrder+=1; local b=Instance.new("TextButton"); b.Size=UDim2.new(1,0,0,40); b.BackgroundColor3=BG2; b.AutoButtonColor=false; b.Text=""; b.LayoutOrder=tabOrder; b.Parent=side; corner(b,10)
-    b.BackgroundTransparency = 0.07
+    b.BackgroundTransparency = START_PANEL_TRANSPARENCY
     local acc=Instance.new("Frame"); acc.Size=UDim2.fromOffset(3,20); acc.Position=UDim2.fromOffset(0,10); acc.BackgroundColor3=ACCENT; acc.BorderSizePixel=0; acc.Visible=false; acc.Parent=b; corner(acc,2)
     local lbl=Instance.new("TextLabel"); lbl.Size=UDim2.new(1,-16,1,0); lbl.Position=UDim2.fromOffset(14,0); lbl.BackgroundTransparency=1; lbl.Font=Enum.Font.GothamMedium; lbl.TextSize=13.5; lbl.TextColor3=SUB; lbl.Text=icon.."  "..name; lbl.TextXAlignment=Enum.TextXAlignment.Left; lbl.Parent=b
     tabs[name]={btn=b,accent=acc,lbl=lbl}
@@ -227,7 +332,7 @@ local allRows = {}
 
 local function makeToggle(page,label,desc,key,callback)
     rowOrder+=1; local row=Instance.new("Frame"); row.Size=UDim2.new(1,0,0,46); row.BackgroundColor3=BG2; row.BorderSizePixel=0; row.LayoutOrder=rowOrder; row.Parent=page; corner(row,10)
-    row.BackgroundTransparency = 0.07
+    row.BackgroundTransparency = START_PANEL_TRANSPARENCY
     local st=Instance.new("UIStroke",row); st.Color=currentTheme.Stroke; st.Thickness=1; st.Transparency=0.3
     local t=Instance.new("TextLabel"); t.Size=UDim2.new(1,-70,0,18); t.Position=UDim2.fromOffset(12,6); t.BackgroundTransparency=1; t.Font=Enum.Font.GothamMedium; t.TextSize=13.5; t.TextColor3=TXT; t.Text=label; t.TextXAlignment=Enum.TextXAlignment.Left; t.Parent=row
     local d=Instance.new("TextLabel"); d.Size=UDim2.new(1,-70,0,13); d.Position=UDim2.fromOffset(12,25); d.BackgroundTransparency=1; d.Font=Enum.Font.Gotham; d.TextSize=10.5; d.TextColor3=SUB; d.Text=desc; d.TextXAlignment=Enum.TextXAlignment.Left; d.Parent=row
@@ -247,7 +352,7 @@ end
 
 local function makeSlider(page,label,desc,key,min,max,default,callback)
     S[key]=S[key] or default; rowOrder+=1; local row=Instance.new("Frame"); row.Size=UDim2.new(1,0,0,70); row.BackgroundColor3=BG2; row.BorderSizePixel=0; row.LayoutOrder=rowOrder; row.Parent=page; corner(row,10)
-    row.BackgroundTransparency = 0.07
+    row.BackgroundTransparency = START_PANEL_TRANSPARENCY
     local t=Instance.new("TextLabel"); t.Size=UDim2.new(1,-70,0,18); t.Position=UDim2.fromOffset(12,8); t.BackgroundTransparency=1; t.Font=Enum.Font.GothamMedium; t.TextSize=13.5; t.TextColor3=TXT; t.Text=label; t.TextXAlignment=Enum.TextXAlignment.Left; t.Parent=row
     local valLabel=Instance.new("TextLabel"); valLabel.Size=UDim2.fromOffset(60,18); valLabel.Position=UDim2.new(1,-72,0,8); valLabel.BackgroundTransparency=1; valLabel.Font=Enum.Font.GothamBold; valLabel.TextSize=13; valLabel.TextColor3=ACCENT; valLabel.Text=tostring(S[key] or default); valLabel.TextXAlignment=Enum.TextXAlignment.Right; valLabel.Parent=row
     local d=Instance.new("TextLabel"); d.Size=UDim2.new(1,-24,0,13); d.Position=UDim2.fromOffset(12,28); d.BackgroundTransparency=1; d.Font=Enum.Font.Gotham; d.TextSize=10.5; d.TextColor3=SUB; d.Text=desc; d.TextXAlignment=Enum.TextXAlignment.Left; d.Parent=row
@@ -269,7 +374,7 @@ end
 
 local function makeTextbox(page,label,desc,key,default)
     rowOrder+=1; local row=Instance.new("Frame"); row.Size=UDim2.new(1,0,0,60); row.BackgroundColor3=BG2; row.BorderSizePixel=0; row.LayoutOrder=rowOrder; row.Parent=page; corner(row,10)
-    row.BackgroundTransparency = 0.07
+    row.BackgroundTransparency = START_PANEL_TRANSPARENCY
     local t=Instance.new("TextLabel"); t.Size=UDim2.new(1,-24,0,18); t.Position=UDim2.fromOffset(12,6); t.BackgroundTransparency=1; t.Font=Enum.Font.GothamMedium; t.TextSize=13.5; t.TextColor3=TXT; t.Text=label; t.TextXAlignment=Enum.TextXAlignment.Left; t.Parent=row
     local d=Instance.new("TextLabel"); d.Size=UDim2.new(1,-24,0,13); d.Position=UDim2.fromOffset(12,24); d.BackgroundTransparency=1; d.Font=Enum.Font.Gotham; d.TextSize=10.5; d.TextColor3=SUB; d.Text=desc; d.TextXAlignment=Enum.TextXAlignment.Left; d.Parent=row
     local box=Instance.new("TextBox"); box.Size=UDim2.new(1,-24,0,24); box.Position=UDim2.fromOffset(12,38); box.BackgroundColor3=BG3; box.TextColor3=TXT; box.Font=Enum.Font.GothamBold; box.TextSize=12; box.Text=S[key] or default; box.PlaceholderText="Enter text..."; box.PlaceholderColor3=SUB; box.Parent=row; corner(box,8)
@@ -283,12 +388,17 @@ local function sectionInfo(page,text)
 end
 
 local function applyTransparency(transp)
-    main.BackgroundTransparency = transp; header.BackgroundTransparency = transp
-    hfix.BackgroundTransparency = transp; side.BackgroundTransparency = transp
+    applyPanelTransparency(transp)
+    header.BackgroundTransparency = transp
+    hfix.BackgroundTransparency = transp
+    side.BackgroundTransparency = transp
     for _, data in ipairs(allRows) do
         if data.type == "toggle" or data.type == "slider" or data.type == "textbox" then
             data.row.BackgroundTransparency = transp
         end
+    end
+    for name, tabData in pairs(tabs) do
+        tabData.btn.BackgroundTransparency = transp
     end
 end
 
@@ -298,7 +408,7 @@ local function applyTheme(themeName)
     BG = currentTheme.BG; BG2 = currentTheme.BG2; BG3 = currentTheme.BG3
     TXT = currentTheme.TXT; SUB = currentTheme.SUB
     local transp = S.bgTransparency / 100
-    main.BackgroundColor3 = BG; main.BackgroundTransparency = transp; mst.Color = currentTheme.Stroke
+    main.BackgroundColor3 = BG; main.BackgroundTransparency = 1; mst.Color = currentTheme.Stroke
     header.BackgroundColor3 = BG2; header.BackgroundTransparency = transp
     hfix.BackgroundColor3 = BG2; hfix.BackgroundTransparency = transp
     side.BackgroundColor3 = BG2; side.BackgroundTransparency = transp
@@ -328,9 +438,11 @@ local function applyTheme(themeName)
             data.box.BackgroundColor3 = BG3; data.box.TextColor3 = TXT; data.box.PlaceholderColor3 = SUB
         elseif data.type == "section" then data.label.TextColor3 = SUB end
     end
+    applyPanelTransparency(transp)
 end
 
-applyTransparency(0.07)
+applyTransparency(START_PANEL_TRANSPARENCY)
+applyPanelTransparency(START_PANEL_TRANSPARENCY)
 
 local pPlayer = makeTab("Player","🏃")
 local pFarm = makeTab("Farm","🤖")
@@ -388,10 +500,210 @@ for themeName,_ in pairs(Themes) do
         end
     end)
 end
-sectionInfo(pSettings,"Background Transparency:")
-makeSlider(pSettings,"BG Transparency","0 = solid, 100 = invisible","bgTransparency",0,90,7, function(val) applyTransparency(val / 100) end)
 
-S["theme_blood"] = true
+-- BACKGROUND SETTINGS
+local function findSettingsPage()
+    for _, object in ipairs(main:GetDescendants()) do
+        if object:IsA("ScrollingFrame") then
+            for _, child in ipairs(object:GetDescendants()) do
+                if child:IsA("TextLabel") and tostring(child.Text):find("Choose UI Theme") then
+                    return object
+                end
+            end
+        end
+    end
+end
+
+local settingsPage = findSettingsPage()
+if settingsPage then
+    local title = Instance.new("TextLabel")
+    title.Name = "SM1LE_BackgroundTitle"
+    title.LayoutOrder = 900
+    title.Size = UDim2.new(1, 0, 0, 0)
+    title.AutomaticSize = Enum.AutomaticSize.Y
+    title.BackgroundTransparency = 1
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 12
+    title.TextColor3 = ACCENT
+    title.TextWrapped = true
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Text = "Background Image:"
+    title.Parent = settingsPage
+
+    local row = Instance.new("Frame")
+    row.Name = "SM1LE_BackgroundInputRow"
+    row.LayoutOrder = 901
+    row.Size = UDim2.new(1, 0, 0, 72)
+    row.BackgroundColor3 = BG2
+    row.BackgroundTransparency = START_PANEL_TRANSPARENCY
+    row.BorderSizePixel = 0
+    row.Parent = settingsPage
+    corner(row, 10)
+
+    local rowStroke = Instance.new("UIStroke")
+    rowStroke.Color = currentTheme.Stroke
+    rowStroke.Transparency = 0.25
+    rowStroke.Parent = row
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -24, 0, 16)
+    label.Position = UDim2.fromOffset(12, 7)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 12
+    label.TextColor3 = TXT
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Text = "Roblox background ID / URL"
+    label.Parent = row
+
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(1, -24, 0, 26)
+    box.Position = UDim2.fromOffset(12, 28)
+    box.BackgroundColor3 = BG3
+    box.BackgroundTransparency = START_PANEL_TRANSPARENCY
+    box.TextColor3 = TXT
+    box.PlaceholderColor3 = SUB
+    box.Font = Enum.Font.Code
+    box.TextSize = 11
+    box.TextXAlignment = Enum.TextXAlignment.Left
+    box.ClearTextOnFocus = false
+    box.Text = START_BACKGROUND
+    box.PlaceholderText = "6395708472 or Roblox asset link"
+    box.Parent = row
+    corner(box, 8)
+
+    local hint = Instance.new("TextLabel")
+    hint.Size = UDim2.new(1, -24, 0, 12)
+    hint.Position = UDim2.fromOffset(12, 56)
+    hint.BackgroundTransparency = 1
+    hint.Font = Enum.Font.Gotham
+    hint.TextSize = 9
+    hint.TextColor3 = SUB
+    hint.TextXAlignment = Enum.TextXAlignment.Left
+    hint.Text = "Use Roblox IDs/links. External JPG/PNG URLs usually do not load in ImageLabel."
+    hint.Parent = row
+
+    local function setBackgroundFromBox()
+        bg.Image = toImageContent(box.Text)
+    end
+
+    box.FocusLost:Connect(setBackgroundFromBox)
+
+    local sliderRow = Instance.new("Frame")
+    sliderRow.Name = "SM1LE_BackgroundTransparencyRow"
+    sliderRow.LayoutOrder = 902
+    sliderRow.Size = UDim2.new(1, 0, 0, 70)
+    sliderRow.BackgroundColor3 = BG2
+    sliderRow.BackgroundTransparency = START_PANEL_TRANSPARENCY
+    sliderRow.BorderSizePixel = 0
+    sliderRow.Parent = settingsPage
+    corner(sliderRow, 10)
+
+    local sliderStroke = Instance.new("UIStroke")
+    sliderStroke.Color = currentTheme.Stroke
+    sliderStroke.Transparency = 0.25
+    sliderStroke.Parent = sliderRow
+
+    local sliderTitle = Instance.new("TextLabel")
+    sliderTitle.Size = UDim2.new(1, -82, 0, 18)
+    sliderTitle.Position = UDim2.fromOffset(12, 8)
+    sliderTitle.BackgroundTransparency = 1
+    sliderTitle.Font = Enum.Font.GothamMedium
+    sliderTitle.TextSize = 12
+    sliderTitle.TextColor3 = TXT
+    sliderTitle.TextXAlignment = Enum.TextXAlignment.Left
+    sliderTitle.Text = "Background Image Transparency"
+    sliderTitle.Parent = sliderRow
+
+    local percentLabel = Instance.new("TextLabel")
+    percentLabel.Size = UDim2.fromOffset(58, 18)
+    percentLabel.Position = UDim2.new(1, -70, 0, 8)
+    percentLabel.BackgroundTransparency = 1
+    percentLabel.Font = Enum.Font.GothamBold
+    percentLabel.TextSize = 12
+    percentLabel.TextColor3 = ACCENT
+    percentLabel.TextXAlignment = Enum.TextXAlignment.Right
+    percentLabel.Parent = sliderRow
+
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1, -24, 0, 8)
+    bar.Position = UDim2.fromOffset(12, 44)
+    bar.BackgroundColor3 = BG3
+    bar.BorderSizePixel = 0
+    bar.Parent = sliderRow
+    corner(bar, 4)
+
+    local fill = Instance.new("Frame")
+    fill.BackgroundColor3 = ACCENT
+    fill.BorderSizePixel = 0
+    fill.Parent = bar
+    corner(fill, 4)
+
+    local knob = Instance.new("TextButton")
+    knob.Size = UDim2.fromOffset(16, 16)
+    knob.BackgroundColor3 = TXT
+    knob.Text = ""
+    knob.Parent = bar
+    corner(knob, 8)
+
+    local hit = Instance.new("TextButton")
+    hit.Size = UDim2.fromScale(1, 1)
+    hit.BackgroundTransparency = 1
+    hit.Text = ""
+    hit.Parent = bar
+
+    local dragging = false
+
+    local function setPercent(percent)
+        percent = math.clamp(math.floor(percent + 0.5), 0, 90)
+        local ratio = percent / 90
+        fill.Size = UDim2.fromScale(ratio, 1)
+        knob.Position = UDim2.new(ratio, -8, 0.5, -8)
+        percentLabel.Text = tostring(percent) .. "%"
+        bg.ImageTransparency = percent / 100
+    end
+
+    local function updateFromInput(input)
+        local ratio = math.clamp((input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+        setPercent(ratio * 90)
+    end
+
+    local function beginDrag(input)
+        dragging = true
+        updateFromInput(input)
+    end
+
+    hit.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            beginDrag(input)
+        end
+    end)
+
+    knob.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            beginDrag(input)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateFromInput(input)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    setPercent(math.floor(START_IMAGE_TRANSPARENCY * 100))
+end
+
+sectionInfo(pSettings,"Panel Transparency:")
+makeSlider(pSettings,"BG Transparency","0 = solid, 100 = invisible","bgTransparency",0,90,math.floor(START_PANEL_TRANSPARENCY * 100), function(val) applyTransparency(val / 100) end)
+
+S["theme_cosmic"] = true
 
 local stats = Instance.new("TextLabel"); stats.Size=UDim2.new(1,0,0,0); stats.AutomaticSize=Enum.AutomaticSize.Y; stats.BackgroundTransparency=1; stats.Font=Enum.Font.Code; stats.TextSize=12; stats.TextColor3=ACCENT; stats.TextXAlignment=Enum.TextXAlignment.Left; stats.RichText=true; stats.LayoutOrder=99; stats.Text=""; stats.Parent=pVisuals
 sectionInfo(pVisuals,"<font color='#B48C8C'>RightCtrl hides the menu  •  drag the header to move</font>")
@@ -420,36 +732,26 @@ local function findNearestBall(pos)
     return nearest,minDist
 end
 
--- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ КОМАНДЫ ИГРОКА
 local function getPlayerTeam(player)
     local team = player.Team
     if team then return team.Name end
-    
     local char = player.Character
     if not char then return nil end
-    
     for _, child in ipairs(char:GetChildren()) do
-        if child:IsA("Folder") and child.Name:lower():find("team") then
-            return child.Name
-        end
+        if child:IsA("Folder") and child.Name:lower():find("team") then return child.Name end
     end
-    
     local teamAttr = player:GetAttribute("Team") or player:GetAttribute("team")
     if teamAttr then return teamAttr end
-    
     return nil
 end
 
--- ФУНКЦИЯ ПОЛУЧЕНИЯ БЛИЖАЙШЕГО ТИММЕЙТА
 local function getNearestTeammate()
     local myTeam = getPlayerTeam(lp)
     if not myTeam then return nil end
-    
     local nearest = nil; local minDist = math.huge
     local char = lp.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
     local myPos = char.HumanoidRootPart.Position
-    
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= lp and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             local playerTeam = getPlayerTeam(player)
@@ -476,26 +778,19 @@ local function getNearestPlayer()
     return nearest
 end
 
--- ФУНКЦИИ УПРАВЛЕНИЯ КЛАВИШАМИ ДЛЯ AUTO DODGE
 local function pressKey(keyCode, isDown)
-    pcall(function()
-        VIM:SendKeyEvent(isDown, keyCode, false, nil)
-    end)
+    pcall(function() VIM:SendKeyEvent(isDown, keyCode, false, nil) end)
 end
 
 local function stopAllMovement()
-    pressKey(Enum.KeyCode.W, false)
-    pressKey(Enum.KeyCode.A, false)
-    pressKey(Enum.KeyCode.S, false)
-    pressKey(Enum.KeyCode.D, false)
+    pressKey(Enum.KeyCode.W, false); pressKey(Enum.KeyCode.A, false)
+    pressKey(Enum.KeyCode.S, false); pressKey(Enum.KeyCode.D, false)
     pressKey(Enum.KeyCode.LeftShift, false)
 end
 
 local function performDash(direction)
     local key = direction == "left" and Enum.KeyCode.Q or Enum.KeyCode.E
-    pressKey(key, true)
-    task.wait(0.02)
-    pressKey(key, false)
+    pressKey(key, true); task.wait(0.02); pressKey(key, false)
     return true
 end
 
@@ -507,7 +802,6 @@ RunService.Heartbeat:Connect(function()
     local hum=char:FindFirstChild("Humanoid"); if hum then hum.AutoRotate=false end
 end)
 
--- GOD MODE
 local godPart
 RunService.Heartbeat:Connect(function()
     if not S.godmode then if godPart then godPart:Destroy(); godPart=nil end return end
@@ -526,7 +820,6 @@ RunService.Heartbeat:Connect(function()
     end end
 end)
 
--- DELETE BALL V2
 local deletePart
 RunService.Heartbeat:Connect(function()
     if not S.deleteball then if deletePart then deletePart:Destroy(); deletePart=nil end return end
@@ -545,7 +838,6 @@ RunService.Heartbeat:Connect(function()
     end end
 end)
 
--- BALL REDIRECT
 local redirectPart
 RunService.Heartbeat:Connect(function()
     if not S.ballredirect then if redirectPart then redirectPart:Destroy(); redirectPart=nil end return end
@@ -573,7 +865,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- BALL PET
 local trappedBalls = {}
 RunService.Heartbeat:Connect(function()
     if not S.ballpet then
@@ -598,7 +889,6 @@ RunService.Stepped:Connect(function()
     local char=lp.Character; if char then for _,p in ipairs(char:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide=false end end end
 end)
 
--- AUTO FARM (Original)
 RunService.Heartbeat:Connect(function()
     if not S.autofarm then if lastAutofarmPos then local char=lp.Character; if char then local root=char:FindFirstChild("HumanoidRootPart"); if root then local nearestBall=findNearestBall(root.Position); if nearestBall then root.CFrame=CFrame.new(nearestBall.Position+Vector3.new(0,15,0)); root.Velocity=Vector3.zero end; local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=false end end end; lastAutofarmPos=nil end; return end
     local char=lp.Character; if not char then return end
@@ -610,99 +900,59 @@ RunService.Heartbeat:Connect(function()
     else root.Velocity=Vector3.new(0,0.5,0); local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=true end end
 end)
 
--- AUTO FARM V2 (ПОД КАРТОЙ НА Y = -10 ПОД ТИММЕЙТОМ)
 RunService.Heartbeat:Connect(function()
     if not S.autofarmv2 then return end
-    
     local char = lp.Character
     if not char then return end
     local root = char:FindFirstChild("HumanoidRootPart")
     if not root then return end
     local hum = char:FindFirstChild("Humanoid")
-    
     local myTeam = getPlayerTeam(lp)
-    
-    -- Если игрок в лобби — просто стоим на месте
     if not myTeam or myTeam:lower():find("lobby") then
         if hum then hum.PlatformStand = false end
-        root.Velocity = Vector3.zero
-        root.RotVelocity = Vector3.zero
+        root.Velocity = Vector3.zero; root.RotVelocity = Vector3.zero
         return
     end
-    
-    -- Игрок в команде Playing — телепортируемся под карту и следуем за тиммейтом
     local teammate = getNearestTeammate()
     if teammate and teammate.Character and teammate.Character:FindFirstChild("HumanoidRootPart") then
         local teammateRoot = teammate.Character.HumanoidRootPart
-        
-        -- Позиция под тиммейтом на Y = -10 (под картой)
         local targetPos = Vector3.new(teammateRoot.Position.X, -5, teammateRoot.Position.Z)
-        
-        -- Телепортируемся под тиммейта
         root.CFrame = CFrame.new(targetPos)
-        root.Velocity = Vector3.zero
-        root.RotVelocity = Vector3.zero
-        
-        -- Отключаем физику чтобы висеть под картой
-        if hum then
-            hum.PlatformStand = true
-            hum.AutoRotate = false
-        end
+        root.Velocity = Vector3.zero; root.RotVelocity = Vector3.zero
+        if hum then hum.PlatformStand = true; hum.AutoRotate = false end
     else
-        -- Если нет тиммейтов — просто висим под картой на месте
         local currentPos = root.Position
         root.CFrame = CFrame.new(Vector3.new(currentPos.X, -10, currentPos.Z))
-        root.Velocity = Vector3.zero
-        root.RotVelocity = Vector3.zero
+        root.Velocity = Vector3.zero; root.RotVelocity = Vector3.zero
         if hum then hum.PlatformStand = true end
     end
 end)
 
--- AUTO DODGE (КАК В ТВОЁМ ПРИМЕРЕ — ЧЕРЕЗ VirtualInputManager)
 local lastDashTime = 0
 local lastScanTime = 0
-
 RunService.Heartbeat:Connect(function()
-    if not S.autododge then
-        stopAllMovement()
-        return
-    end
-    
-    -- Проверяем кулдаун
+    if not S.autododge then stopAllMovement(); return end
     if tick() - lastDashTime < S.dodgeCooldown then return end
-    
-    -- Сканируем с интервалом
     if tick() - lastScanTime < 0.05 then return end
     lastScanTime = tick()
-    
     local char = lp.Character
     if not char then return end
     local root = char:FindFirstChild("HumanoidRootPart")
     if not root then return end
     local hum = char:FindFirstChild("Humanoid")
     if not hum or hum.Health <= 0 then return end
-    
     local myPos = root.Position
     local nearestBall = nil
     local nearestDist = S.dodgeDistance
     local nearestCrossSide = nil
-    
-    -- Сканируем все мячи
     for _, ball in ipairs(getBalls()) do
         if ball and ball.Parent and ball.Velocity.Magnitude > 5 then
             local ballPos = ball.Position
             local dist = (ballPos - myPos).Magnitude
-            
-            -- Предсказываем позицию через 0.2 секунды
             local futurePos = ballPos + ball.Velocity * 0.2
             local futureDist = (futurePos - myPos).Magnitude
-            
-            -- Если мяч будет близко через 0.2 сек
             if futureDist < 4.0 and dist < nearestDist then
-                nearestDist = dist
-                nearestBall = ball
-                
-                -- Определяем с какой стороны мяч
+                nearestDist = dist; nearestBall = ball
                 local toBall = (ballPos - myPos).Unit
                 local rightVector = root.CFrame.RightVector
                 local cross = toBall:Cross(Vector3.new(0, 1, 0))
@@ -711,20 +961,10 @@ RunService.Heartbeat:Connect(function()
             end
         end
     end
-    
-    -- Если нашли угрозу — выполняем рывок
     if nearestBall then
-        if nearestCrossSide == "right" then
-            -- Мяч справа — рывок влево (Q)
-            performDash("left")
-        else
-            -- Мяч слева — рывок вправо (E)
-            performDash("right")
-        end
+        if nearestCrossSide == "right" then performDash("left") else performDash("right") end
         lastDashTime = tick()
-    else
-        stopAllMovement()
-    end
+    else stopAllMovement() end
 end)
 
 local freezePart
