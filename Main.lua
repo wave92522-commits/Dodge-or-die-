@@ -654,7 +654,6 @@ for themeName,_ in pairs(Themes) do
     end)
 end
 
--- BACKGROUND SETTINGS
 local function findSettingsPage()
     for _, object in ipairs(main:GetDescendants()) do
         if object:IsA("ScrollingFrame") then
@@ -738,333 +737,321 @@ local mini=false; minB.MouseButton1Click:Connect(function() mini=not mini; Tween
 UserInputService.InputBegan:Connect(function(i,gpe) if gpe then return end; if i.KeyCode==Enum.KeyCode.RightControl then main.Visible=not main.Visible end end)
 
 -- ==================== ИГРОВЫЕ ФИЧИ ====================
-local alive = true; local lastAutofarmPos = nil
-local cachedBalls = {}; local lastBallCache = 0
+local alive = true
 
-local function getBalls()
-    if tick()-lastBallCache>0.05 then cachedBalls={}
-        for _,obj in ipairs(workspace:GetDescendants()) do if obj:IsA("BasePart") and (obj.Name:lower():find("ball") or obj:GetAttribute("IsBall")) then table.insert(cachedBalls,obj) end end
-        lastBallCache=tick()
-    end
-    return cachedBalls
-end
-
-local function findNearestBall(pos)
-    local nearest=nil; local minDist=math.huge
-    for _,ball in ipairs(getBalls()) do if ball and ball.Parent then local dist=(ball.Position-pos).Magnitude; if dist<minDist then minDist=dist; nearest=ball end end end
-    return nearest,minDist
-end
-
-local function getPlayerTeam(player)
-    local team = player.Team; if team then return team.Name end
-    local char = player.Character; if not char then return nil end
-    for _, child in ipairs(char:GetChildren()) do if child:IsA("Folder") and child.Name:lower():find("team") then return child.Name end end
-    local teamAttr = player:GetAttribute("Team") or player:GetAttribute("team")
-    if teamAttr then return teamAttr end
-    return nil
-end
-
-local function getNearestTeammate()
-    local myTeam = getPlayerTeam(lp); if not myTeam then return nil end
-    local nearest = nil; local minDist = math.huge
-    local char = lp.Character; if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
-    local myPos = char.HumanoidRootPart.Position
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= lp and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local playerTeam = getPlayerTeam(player)
-            if playerTeam == myTeam then
-                local dist = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
-                if dist < minDist then minDist = dist; nearest = player end
+local function getAllObjects()
+    local objects = {}
+    pcall(function()
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") and v.CanCollide == true and not v.Anchored and v.Name ~= "Baseplate" then
+                local skip = false
+                for _, p in ipairs(Players:GetPlayers()) do
+                    if p.Character and v:IsDescendantOf(p.Character) then skip = true break end
+                end
+                if not skip then table.insert(objects, v) end
             end
         end
-    end
-    return nearest
+    end)
+    return objects
 end
 
-local function getNearestPlayer()
-    local nearest = nil; local minDist = math.huge
-    local char = lp.Character; if not char then return nil end
-    local root = char:FindFirstChild("HumanoidRootPart"); if not root then return nil end
-    local myPos = root.Position
-    for _,p in ipairs(Players:GetPlayers()) do
-        if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            local dist = (p.Character.HumanoidRootPart.Position - myPos).Magnitude
-            if dist < minDist then minDist = dist; nearest = p end
+-- GOD MODE
+task.spawn(function() while alive do if S.godmode then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local pos = char.HumanoidRootPart.Position
+        for _, v in ipairs(getAllObjects()) do
+            pcall(function()
+                if v and v.Parent and (v.Position - pos).Magnitude < 12 then
+                    v.Velocity = (v.Position - pos).Unit * 50
+                end
+            end)
         end
     end
-    return nearest
-end
+end task.wait(0.05) end end)
 
-local function pressKey(keyCode, isDown)
-    pcall(function() VIM:SendKeyEvent(isDown, keyCode, false, nil) end)
-end
-
-local function stopAllMovement()
-    pressKey(Enum.KeyCode.W, false); pressKey(Enum.KeyCode.A, false)
-    pressKey(Enum.KeyCode.S, false); pressKey(Enum.KeyCode.D, false)
-    pressKey(Enum.KeyCode.LeftShift, false)
-end
-
-local function performDash(direction)
-    local key = direction == "left" and Enum.KeyCode.Q or Enum.KeyCode.E
-    pressKey(key, true); task.wait(0.02); pressKey(key, false)
-    return true
-end
-
-RunService.Heartbeat:Connect(function()
-    if not S.spinbot then return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    root.CFrame=root.CFrame*CFrame.Angles(0,math.rad(S.spinSpeed),0)
-    local hum=char:FindFirstChild("Humanoid"); if hum then hum.AutoRotate=false end
-end)
-
-local godPart
-RunService.Heartbeat:Connect(function()
-    if not S.godmode then if godPart then godPart:Destroy(); godPart=nil end return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    if not godPart or not godPart.Parent then if godPart then godPart:Destroy() end
-        godPart=Instance.new("Part"); godPart.Name="GodShield"; godPart.Size=Vector3.new(10,10,10)
-        godPart.Transparency=S.hitboxview and 0.6 or 1; godPart.Color=Color3.fromRGB(255,0,0)
-        godPart.Material=Enum.Material.ForceField; godPart.CanCollide=false; godPart.Anchored=true; godPart.Parent=workspace
-    end
-    godPart.CFrame=root.CFrame; godPart.Transparency=S.hitboxview and 0.6 or 1
-    local balls=getBalls()
-    for _,ball in ipairs(balls) do if ball and ball.Parent and (ball.Position-godPart.Position).Magnitude<8 then
-        local dir=(ball.Position-godPart.Position).Unit; if dir.Magnitude<0.1 then dir=Vector3.new(0,1,0) end
-        ball.Velocity=dir*25; ball.AssemblyLinearVelocity=dir*25
-    end end
-end)
-
-local deletePart
-RunService.Heartbeat:Connect(function()
-    if not S.deleteball then if deletePart then deletePart:Destroy(); deletePart=nil end return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    if not deletePart or not deletePart.Parent then if deletePart then deletePart:Destroy() end
-        deletePart=Instance.new("Part"); deletePart.Name="DeleteShield"; deletePart.Size=Vector3.new(14,14,14)
-        deletePart.Transparency=S.hitboxview and 0.5 or 1; deletePart.Color=Color3.fromRGB(255,0,0)
-        deletePart.Material=Enum.Material.ForceField; deletePart.CanCollide=false; deletePart.Anchored=true; deletePart.Parent=workspace
-    end
-    deletePart.CFrame=root.CFrame; deletePart.Transparency=S.hitboxview and 0.5 or 1
-    for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-deletePart.Position).Magnitude<10 then
-        local dir=(ball.Position-deletePart.Position).Unit
-        if dir.Magnitude<0.1 then dir=Vector3.new(math.random(-1,1),1,math.random(-1,1)).Unit end
-        ball.Velocity=dir*2000; ball.AssemblyLinearVelocity=dir*2000
-    end end
-end)
-
-local redirectPart
-RunService.Heartbeat:Connect(function()
-    if not S.ballredirect then if redirectPart then redirectPart:Destroy(); redirectPart=nil end return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    if not redirectPart or not redirectPart.Parent then if redirectPart then redirectPart:Destroy() end
-        redirectPart=Instance.new("Part"); redirectPart.Name="RedirectShield"; redirectPart.Size=Vector3.new(16,16,16)
-        redirectPart.Transparency=S.hitboxview and 0.5 or 1; redirectPart.Color=Color3.fromRGB(255,0,255)
-        redirectPart.Material=Enum.Material.ForceField; redirectPart.CanCollide=false; redirectPart.Anchored=true; redirectPart.Parent=workspace
-    end
-    redirectPart.CFrame=root.CFrame; redirectPart.Transparency=S.hitboxview and 0.5 or 1
-    local target = getNearestPlayer()
-    for _,ball in ipairs(getBalls()) do
-        if ball and ball.Parent and (ball.Position-redirectPart.Position).Magnitude<12 then
-            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-                local targetPos = target.Character.HumanoidRootPart.Position
-                local dir = (targetPos - ball.Position).Unit
-                ball.Velocity = dir * 500; ball.AssemblyLinearVelocity = dir * 500
-            else
-                local dir = (ball.Position - redirectPart.Position).Unit
-                if dir.Magnitude < 0.1 then dir = Vector3.new(0, 1, 0) end
-                ball.Velocity = dir * 500; ball.AssemblyLinearVelocity = dir * 500
-            end
+-- DELETE BALL
+task.spawn(function() while alive do if S.deleteball then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local pos = char.HumanoidRootPart.Position
+        for _, v in ipairs(getAllObjects()) do
+            pcall(function()
+                if v and v.Parent and (v.Position - pos).Magnitude < 16 then
+                    v.Velocity = (v.Position - pos).Unit * 500
+                end
+            end)
         end
     end
-end)
+end task.wait(0.05) end end)
 
-local trappedBalls = {}
-RunService.Heartbeat:Connect(function()
-    if not S.ballpet then
-        for ball,_ in pairs(trappedBalls) do pcall(function() if ball and ball.Parent then ball.Anchored=false; ball.Velocity=Vector3.new(math.random(-50,50),math.random(50,100),math.random(-50,50)) end end) end
-        table.clear(trappedBalls); return
-    end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-root.Position).Magnitude<S.petRange then trappedBalls[ball]=true; ball.Anchored=true; ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end end
-    for ball,_ in pairs(trappedBalls) do pcall(function() if ball and ball.Parent then if (ball.Position-root.Position).Magnitude>S.petRange+3 then ball.Anchored=false; trappedBalls[ball]=nil else ball.Anchored=true; ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end else trappedBalls[ball]=nil end end) end
-end)
-
-RunService.Heartbeat:Connect(function()
-    local char=lp.Character; if not char then return end
-    local hum=char:FindFirstChild("Humanoid"); if not hum then return end
-    if S.jumppower then hum.JumpPower=S.jumpVal end
-    if S.speed then hum.WalkSpeed=S.speedVal end
-end)
-
-RunService.Stepped:Connect(function()
-    if not S.noclip then return end
-    local char=lp.Character; if char then for _,p in ipairs(char:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide=false end end end
-end)
-
-RunService.Heartbeat:Connect(function()
-    if not S.autofarm then if lastAutofarmPos then local char=lp.Character; if char then local root=char:FindFirstChild("HumanoidRootPart"); if root then local nearestBall=findNearestBall(root.Position); if nearestBall then root.CFrame=CFrame.new(nearestBall.Position+Vector3.new(0,15,0)); root.Velocity=Vector3.zero end; local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=false end end end; lastAutofarmPos=nil end; return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    local target=nil; for _,p in ipairs(Players:GetPlayers()) do if p~=lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then target=p; break end end
-    if target then local tr=target.Character.HumanoidRootPart; local behind=-tr.CFrame.LookVector; local targetPos=tr.Position+behind*S.tpY+Vector3.new(0,2,0)
-        local moveDir=(targetPos-root.Position); if moveDir.Magnitude>1 then root.Velocity=moveDir.Unit*50 else root.Velocity=Vector3.new(0,0.5,0) end
-        local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=true end; lastAutofarmPos=targetPos
-    else root.Velocity=Vector3.new(0,0.5,0); local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=true end end
-end)
-
-RunService.Heartbeat:Connect(function()
-    if not S.autofarmv2 then return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    local hum=char:FindFirstChild("Humanoid")
-    local myTeam=getPlayerTeam(lp)
-    if not myTeam or myTeam:lower():find("lobby") then
-        if hum then hum.PlatformStand=false end
-        root.Velocity=Vector3.zero; root.RotVelocity=Vector3.zero; return
-    end
-    local teammate=getNearestTeammate()
-    if teammate and teammate.Character and teammate.Character:FindFirstChild("HumanoidRootPart") then
-        local tr=teammate.Character.HumanoidRootPart
-        root.CFrame=CFrame.new(Vector3.new(tr.Position.X,-5,tr.Position.Z))
-        root.Velocity=Vector3.zero; root.RotVelocity=Vector3.zero
-        if hum then hum.PlatformStand=true; hum.AutoRotate=false end
-    else
-        root.CFrame=CFrame.new(Vector3.new(root.Position.X,-10,root.Position.Z))
-        root.Velocity=Vector3.zero; root.RotVelocity=Vector3.zero
-        if hum then hum.PlatformStand=true end
-    end
-end)
-
-local lastDashTime=0; local lastScanTime=0
-RunService.Heartbeat:Connect(function()
-    if not S.autododge then stopAllMovement(); return end
-    if tick()-lastDashTime<S.dodgeCooldown then return end
-    if tick()-lastScanTime<0.05 then return end
-    lastScanTime=tick()
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    local hum=char:FindFirstChild("Humanoid"); if not hum or hum.Health<=0 then return end
-    local myPos=root.Position
-    local nearestBall=nil; local nearestDist=S.dodgeDistance; local nearestCrossSide=nil
-    for _,ball in ipairs(getBalls()) do
-        if ball and ball.Parent and ball.Velocity.Magnitude>5 then
-            local ballPos=ball.Position; local dist=(ballPos-myPos).Magnitude
-            local futurePos=ballPos+ball.Velocity*0.2; local futureDist=(futurePos-myPos).Magnitude
-            if futureDist<4.0 and dist<nearestDist then
-                nearestDist=dist; nearestBall=ball
-                local toBall=(ballPos-myPos).Unit
-                local cross=toBall:Cross(Vector3.new(0,1,0))
-                nearestCrossSide=cross:Dot(root.CFrame.RightVector)>0 and "right" or "left"
-            end
+-- BALL REDIRECT
+task.spawn(function() while alive do if S.ballredirect then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local pos = char.HumanoidRootPart.Position
+        for _, v in ipairs(getAllObjects()) do
+            pcall(function()
+                if v and v.Parent and (v.Position - pos).Magnitude < 16 then
+                    v.Velocity = (v.Position - pos).Unit * 400
+                end
+            end)
         end
     end
-    if nearestBall then
-        if nearestCrossSide=="right" then performDash("left") else performDash("right") end
-        lastDashTime=tick()
-    else stopAllMovement() end
-end)
+end task.wait(0.05) end end)
 
-local freezePart
+-- BALL PET
+local trappedObjects = {}
+task.spawn(function() while alive do if S.ballpet then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local pos = char.HumanoidRootPart.Position
+        for _, v in ipairs(getAllObjects()) do
+            pcall(function()
+                if v and v.Parent and (v.Position - pos).Magnitude < S.petRange then
+                    trappedObjects[v] = true
+                    v.Anchored = true
+                end
+            end)
+        end
+        for v, _ in pairs(trappedObjects) do
+            pcall(function()
+                if v and v.Parent then
+                    if (v.Position - pos).Magnitude > S.petRange + 5 then
+                        v.Anchored = false
+                        trappedObjects[v] = nil
+                    end
+                else
+                    trappedObjects[v] = nil
+                end
+            end)
+        end
+    end
+else
+    for v, _ in pairs(trappedObjects) do pcall(function() if v and v.Parent then v.Anchored = false end end) end
+    table.clear(trappedObjects)
+end task.wait(0.05) end end)
+
+-- FREEZE TIME
+task.spawn(function() while alive do if S.freezetime then
+    for _, v in ipairs(getAllObjects()) do
+        pcall(function() if v and v.Parent then v.Velocity = Vector3.zero end end)
+    end
+end task.wait(0.05) end end)
+
+-- PERFECT TIME
+task.spawn(function() while alive do if S.perfecttime then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local pos = char.HumanoidRootPart.Position
+        for _, v in ipairs(getAllObjects()) do
+            pcall(function()
+                if v and v.Parent and (v.Position - pos).Magnitude < S.perfectRange then
+                    v.Velocity = v.Velocity * 0.01
+                end
+            end)
+        end
+    end
+end task.wait(0.05) end end)
+
+-- SPINBOT
+task.spawn(function() while alive do if S.spinbot then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(S.spinSpeed), 0)
+    end
+end task.wait(0.01) end end)
+
+-- JUMP POWER & SPEED
 task.spawn(function() while alive do
-    if S.freezetime then
-        if not freezePart or not freezePart.Parent then freezePart=Instance.new("Part"); freezePart.Name="FreezeZone"; freezePart.Size=Vector3.new(300,300,300)
-            freezePart.Transparency=S.hitboxview and 0.4 or 1; freezePart.Color=Color3.fromRGB(0,150,255)
-            freezePart.Anchored=true; freezePart.CanCollide=false; freezePart.Parent=workspace end
-        freezePart.CFrame=CFrame.new(0,150,0); freezePart.Transparency=S.hitboxview and 0.4 or 1
-        for _,ball in ipairs(getBalls()) do if ball and ball.Parent then ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end end
-    else if freezePart then freezePart:Destroy(); freezePart=nil end end
-    task.wait(0.05)
-end end)
-
-local perfectPart, perfectRing
-task.spawn(function() while alive do
-    if S.perfecttime then
-        local char=lp.Character; if char then local root=char:FindFirstChild("HumanoidRootPart"); if root then
-            if not perfectPart or not perfectPart.Parent then perfectPart=Instance.new("Part"); perfectPart.Name="PerfectZone"; perfectPart.Anchored=true; perfectPart.CanCollide=false; perfectPart.Parent=workspace end
-            perfectPart.Size=Vector3.new(S.perfectRange*2,S.perfectRange*2,S.perfectRange*2); perfectPart.CFrame=root.CFrame; perfectPart.Transparency=S.hitboxview and 0.4 or 1; perfectPart.Color=Color3.fromRGB(255,200,0)
-            if S.perfectring then
-                if not perfectRing or not perfectRing.Parent then if perfectRing then perfectRing:Destroy() end; perfectRing=Instance.new("Part"); perfectRing.Name="PerfectRing"; perfectRing.Shape=Enum.PartType.Cylinder; perfectRing.Anchored=true; perfectRing.CanCollide=false; perfectRing.Material=Enum.Material.Neon; perfectRing.Parent=workspace end
-                perfectRing.Size=Vector3.new(S.perfectRange*2,0.3,S.perfectRange*2); perfectRing.CFrame=CFrame.new(root.Position); perfectRing.Transparency=S.hitboxview and 0.4 or 1; perfectRing.Color=Color3.fromRGB(255,200,0)
-            else if perfectRing then perfectRing:Destroy(); perfectRing=nil end end
-            for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-root.Position).Magnitude<S.perfectRange then ball.Velocity=ball.Velocity*0.01; ball.AssemblyLinearVelocity=ball.AssemblyLinearVelocity*0.01 end end
-        end end
-    else if perfectPart then perfectPart:Destroy(); perfectPart=nil end; if perfectRing then perfectRing:Destroy(); perfectRing=nil end end
-    task.wait(0.05)
-end end)
-
-task.spawn(function() while alive do if S.autoskill then local char=lp.Character; local backpack=lp:FindFirstChild("Backpack")
-    if char and backpack then for _,tool in ipairs(backpack:GetChildren()) do if tool:IsA("Tool") and alive and S.autoskill then pcall(function() tool.Parent=char; tool:Activate() end) end end
-    for _,tool in ipairs(char:GetChildren()) do if tool:IsA("Tool") and alive and S.autoskill then pcall(function() tool:Activate() end) end end end end
+    local char = lp.Character
+    if char then
+        local hum = char:FindFirstChild("Humanoid")
+        if hum then
+            if S.jumppower then hum.JumpPower = S.jumpVal end
+            if S.speed then hum.WalkSpeed = S.speedVal end
+        end
+    end
     task.wait(0.3)
 end end)
 
-local auraBillboard, auraText
-task.spawn(function() while alive do if S.aura then local char=lp.Character; if char then local head=char:FindFirstChild("Head"); if head then
-    if not auraBillboard or not auraBillboard.Parent then if auraBillboard then auraBillboard:Destroy() end
-        auraBillboard=Instance.new("BillboardGui"); auraBillboard.Size=UDim2.new(0,200,0,60); auraBillboard.StudsOffset=Vector3.new(0,3,0); auraBillboard.Adornee=head; auraBillboard.Parent=char
-        auraText=Instance.new("TextLabel"); auraText.BackgroundTransparency=1; auraText.BorderSizePixel=0; auraText.Text=S.auraText; auraText.Font=Enum.Font.GothamBlack; auraText.TextSize=28; auraText.TextColor3=ACCENT; auraText.Size=UDim2.new(1,0,1,0)
-        Instance.new("UIStroke",auraText).Color=Color3.new(0,0,0); auraText:FindFirstChildOfClass("UIStroke").Thickness=3
-        local s2=Instance.new("UIStroke",auraText); s2.Color=Color3.fromRGB(255,255,255); s2.Thickness=1
-        auraText.Parent=auraBillboard
+-- NOCLIP
+RunService.Stepped:Connect(function()
+    if S.noclip and lp.Character then
+        for _, v in ipairs(lp.Character:GetDescendants()) do
+            if v:IsA("BasePart") then v.CanCollide = false end
+        end
     end
-    if math.random(0,100)<10 then auraText.Text=({"NOHOPE","GIVEUP","BURNINHELL"})[math.random(1,3)] else auraText.Text=S.auraText end
-    auraText.Position=UDim2.new(0,math.random(-3,3),0,math.random(-3,3))
-end end
-else if auraBillboard then auraBillboard:Destroy(); auraBillboard=nil; auraText=nil end end
-task.wait(0.05) end end)
+end)
 
-local espObjects = {}
-task.spawn(function() local rainbowHue=0
-while alive do if S.esp then rainbowHue=(rainbowHue+0.01)%1
-    for _,player in ipairs(Players:GetPlayers()) do if player~=lp and player.Character then local hum=player.Character:FindFirstChild("Humanoid"); if hum and hum.Health>0 then
-        if not espObjects[player] then local h=Instance.new("Highlight"); h.FillColor=Color3.fromRGB(255,80,80); h.OutlineColor=Color3.fromRGB(255,255,255); h.FillTransparency=0.4; h.Parent=player.Character; espObjects[player]=h end
-        if S.rainbowesp and espObjects[player] then local hue=(rainbowHue+player.UserId%100/100)%1; espObjects[player].FillColor=Color3.fromHSV(hue,1,1); espObjects[player].OutlineColor=Color3.fromHSV((hue+0.5)%1,1,1)
-        elseif not S.rainbowesp and espObjects[player] then espObjects[player].FillColor=Color3.fromRGB(255,80,80); espObjects[player].OutlineColor=Color3.fromRGB(255,255,255) end
-    end end end
-else for k,v in pairs(espObjects) do pcall(function() v:Destroy() end); espObjects[k]=nil end end
-if S.espballs then for _,ball in ipairs(getBalls()) do if ball and ball.Parent and not ball:FindFirstChild("BallESP") then local h=Instance.new("Highlight"); h.Name="BallESP"; h.FillColor=Color3.fromRGB(255,255,0); h.OutlineColor=Color3.fromRGB(255,0,0); h.FillTransparency=0.5; h.Parent=ball end
-    if S.rainbowesp then local ballEsp=ball:FindFirstChild("BallESP"); if ballEsp then local hue=(rainbowHue+#ball.Name%10/10)%1; ballEsp.FillColor=Color3.fromHSV(hue,1,1); ballEsp.OutlineColor=Color3.fromHSV((hue+0.5)%1,1,1) end end end
-else for _,ball in ipairs(getBalls()) do local esp=ball and ball:FindFirstChild("BallESP"); if esp then esp:Destroy() end end end
-task.wait(0.05) end end)
+-- AUTO FARM
+task.spawn(function() while alive do if S.autofarm then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local root = char.HumanoidRootPart
+        local target = nil
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then target = p break end
+        end
+        if target then
+            local tr = target.Character.HumanoidRootPart
+            local tp = tr.Position - tr.CFrame.LookVector * S.tpY + Vector3.new(0,2,0)
+            root.Velocity = (tp - root.Position).Magnitude > 1 and (tp - root.Position).Unit * 50 or Vector3.new(0,0.5,0)
+        else
+            root.Velocity = Vector3.new(0,0.5,0)
+        end
+    end
+end task.wait(0.05) end end)
 
-local musicSound
-task.spawn(function() while alive do if S.musicplayer then if not musicSound or not musicSound.Parent then if musicSound then musicSound:Destroy() end
-    musicSound=Instance.new("Sound"); musicSound.Name="MusicPlayer"; musicSound.SoundId=S.musicID; musicSound.Looped=true; musicSound.Volume=1; musicSound.Parent=workspace; musicSound:Play()
-elseif musicSound.SoundId~=S.musicID then musicSound.SoundId=S.musicID; musicSound:Play() end
-else if musicSound then musicSound:Stop(); musicSound:Destroy(); musicSound=nil end end
+-- AUTO FARM V2
+task.spawn(function() while alive do if S.autofarmv2 then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local root = char.HumanoidRootPart
+        local team = lp.Team and lp.Team.Name or lp:GetAttribute("Team")
+        if team and not team:lower():find("lobby") then
+            local nearest = nil
+            local minDist = math.huge
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local pt = p.Team and p.Team.Name or p:GetAttribute("Team")
+                    if pt == team then
+                        local d = (p.Character.HumanoidRootPart.Position - root.Position).Magnitude
+                        if d < minDist then minDist = d; nearest = p end
+                    end
+                end
+            end
+            if nearest then
+                root.CFrame = CFrame.new(nearest.Character.HumanoidRootPart.Position.X, -5, nearest.Character.HumanoidRootPart.Position.Z)
+            end
+        end
+        root.Velocity = Vector3.zero
+    end
+end task.wait(0.05) end end)
+
+-- AUTO DODGE
+local lastDashTime = 0
+task.spawn(function() while alive do if S.autododge and tick() - lastDashTime >= S.dodgeCooldown then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local pos = char.HumanoidRootPart.Position
+        local side = nil
+        local nearDist = S.dodgeDistance
+        for _, v in ipairs(getAllObjects()) do
+            pcall(function()
+                if v and v.Parent and v.Velocity.Magnitude > 2 then
+                    local fp = v.Position + v.Velocity * 0.25
+                    if (fp - pos).Magnitude < 4 and (v.Position - pos).Magnitude < nearDist then
+                        nearDist = (v.Position - pos).Magnitude
+                        local cr = (v.Position - pos).Unit:Cross(Vector3.new(0,1,0))
+                        side = cr:Dot(char.HumanoidRootPart.CFrame.RightVector) > 0 and "right" or "left"
+                    end
+                end
+            end)
+        end
+        if side then
+            local key = side == "right" and Enum.KeyCode.Q or Enum.KeyCode.E
+            pcall(function() VIM:SendKeyEvent(true, key, false, nil) end)
+            task.wait(0.02)
+            pcall(function() VIM:SendKeyEvent(false, key, false, nil) end)
+            lastDashTime = tick()
+        end
+    end
+end task.wait(0.03) end end)
+
+-- AUTO SKILL
+task.spawn(function() while alive do if S.autoskill then
+    local char = lp.Character
+    local bp = lp:FindFirstChild("Backpack")
+    if bp then for _, t in ipairs(bp:GetChildren()) do if t:IsA("Tool") then pcall(function() t.Parent = char end) end end end
+    if char then for _, t in ipairs(char:GetChildren()) do if t:IsA("Tool") then pcall(function() t:Activate() end) end end end
+end task.wait(0.5) end end)
+
+-- AURA
+local auraGUI, auraLabel
+task.spawn(function() while alive do if S.aura then
+    local char = lp.Character
+    if char and char:FindFirstChild("Head") then
+        if not auraGUI then
+            auraGUI = Instance.new("BillboardGui")
+            auraGUI.Size = UDim2.new(0,200,0,50)
+            auraGUI.StudsOffset = Vector3.new(0,2.5,0)
+            auraGUI.Adornee = char.Head
+            auraGUI.Parent = char
+            auraLabel = Instance.new("TextLabel")
+            auraLabel.BackgroundTransparency = 1
+            auraLabel.Size = UDim2.new(1,0,1,0)
+            auraLabel.Font = Enum.Font.GothamBlack
+            auraLabel.TextSize = 24
+            auraLabel.TextColor3 = ACCENT
+            auraLabel.TextStrokeTransparency = 0
+            Instance.new("UIStroke", auraLabel).Thickness = 2
+            auraLabel.Parent = auraGUI
+        end
+        auraLabel.Text = math.random(1,10) == 1 and ({"L","RUN","DIE"})[math.random(1,3)] or S.auraText
+    end
+else if auraGUI then auraGUI:Destroy(); auraGUI = nil end end
+task.wait(0.15) end end)
+
+-- ESP
+local highlights = {}
+task.spawn(function() while alive do if S.esp then
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= lp and p.Character and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
+            if not highlights[p] then
+                local h = Instance.new("Highlight")
+                h.FillColor = S.rainbowesp and Color3.fromHSV(tick()%5/5,1,1) or Color3.fromRGB(255,50,50)
+                h.FillTransparency = 0.5
+                h.Parent = p.Character
+                highlights[p] = h
+            end
+        end
+    end
+else for k,v in pairs(highlights) do pcall(function() v:Destroy() end); highlights[k] = nil end end
+task.wait(0.3) end end)
+
+-- MUSIC PLAYER
+local music
+task.spawn(function() while alive do if S.musicplayer then
+    if not music then
+        music = Instance.new("Sound")
+        music.SoundId = S.musicID
+        music.Looped = true
+        music.Volume = 1
+        music.Parent = workspace
+        music:Play()
+    end
+else if music then music:Stop(); music:Destroy(); music = nil end end
 task.wait(1) end end)
 
+-- ANTI AFK
 lp.Idled:Connect(function() if S.antiafk then VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end end)
 
-task.spawn(function() while alive do local char=lp.Character; local hp="?"; if char then local hum=char:FindFirstChild("Humanoid"); if hum then hp=math.floor(hum.Health) end end
-local tc=0; for _ in pairs(trappedBalls) do tc+=1 end
-stats.Text=string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s | Redirect: %s | Dodge: %s | ❄️Snow: %s",
-    hp,#getBalls(),tc, S.godmode and "✅" or "❌", S.freezetime and "✅" or "❌", S.ballpet and "✅" or "❌", S.deleteball and "✅" or "❌", S.ballredirect and "✅" or "❌", S.autododge and "✅" or "❌", S.snowEffect and "✅" or "❌")
-task.wait(0.5) end end)
+-- STATS
+task.spawn(function() while alive do
+    local hp = lp.Character and lp.Character:FindFirstChild("Humanoid") and math.floor(lp.Character.Humanoid.Health) or "?"
+    local tc = 0; for _ in pairs(trappedObjects) do tc = tc + 1 end
+    stats.Text = string.format("HP: %s | Objects: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s | Dodge: %s",
+        hp, #getAllObjects(), tc,
+        S.godmode and "✅" or "❌", S.freezetime and "✅" or "❌",
+        S.ballpet and "✅" or "❌", S.deleteball and "✅" or "❌",
+        S.autododge and "✅" or "❌")
+    task.wait(0.3)
+end end)
 
 closeB.MouseButton1Click:Connect(function() if _G.Sm1leHub then _G.Sm1leHub.Destroy() end end)
 
 _G.Sm1leHub = {
     Destroy = function()
-        alive=false; for k in pairs(S) do if type(S[k])=="boolean" then S[k]=false end end
-        stopAllMovement(); stopSnow()
+        alive = false
+        for k in pairs(S) do if type(S[k]) == "boolean" then S[k] = false end end
+        stopSnow()
         if gui then gui:Destroy() end
-        if godPart then godPart:Destroy() end
-        if deletePart then deletePart:Destroy() end
-        if redirectPart then redirectPart:Destroy() end
-        if freezePart then freezePart:Destroy() end
-        if perfectPart then perfectPart:Destroy() end
-        if perfectRing then perfectRing:Destroy() end
-        if auraBillboard then auraBillboard:Destroy() end
-        if musicSound then musicSound:Stop(); musicSound:Destroy() end
-        for ball,_ in pairs(trappedBalls) do pcall(function() if ball and ball.Parent then ball.Anchored=false end end) end
-        table.clear(trappedBalls)
-        for _,v in pairs(espObjects) do pcall(function() v:Destroy() end) end; table.clear(espObjects)
-        _G.Sm1leHub=nil
+        if auraGUI then auraGUI:Destroy() end
+        if music then music:Stop(); music:Destroy() end
+        for v, _ in pairs(trappedObjects) do pcall(function() if v and v.Parent then v.Anchored = false end end) end
+        table.clear(trappedObjects)
+        for _, v in pairs(highlights) do pcall(function() v:Destroy() end) end; table.clear(highlights)
+        _G.Sm1leHub = nil
     end
 }
