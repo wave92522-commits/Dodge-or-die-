@@ -14,7 +14,6 @@ local VirtualUser = game:GetService("VirtualUser")
 local VIM = game:GetService("VirtualInputManager")
 local lp = Players.LocalPlayer
 
--- ==================== ФУНКЦИИ РАННЕГО ДОСТУПА ====================
 local function corner(p, r)
     local c = Instance.new("UICorner")
     c.CornerRadius = UDim.new(0, r)
@@ -46,13 +45,11 @@ for i = 1, 60 do
     flake.BorderSizePixel = 0
     flake.Parent = introFrame
     corner(flake, size / 2)
-    
     local glow = Instance.new("UIStroke")
     glow.Color = Color3.fromRGB(255, 255, 255)
     glow.Thickness = 1
     glow.Transparency = 0.6
     glow.Parent = flake
-    
     snowflakesIntro[i] = {
         dot = flake, glow = glow,
         x = flake.Position.X.Scale, y = flake.Position.Y.Scale,
@@ -72,13 +69,11 @@ introTitle.TextSize = 56
 introTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 introTitle.TextTransparency = 1
 introTitle.Parent = introFrame
-
 local introTitleGlow = Instance.new("UIStroke")
 introTitleGlow.Color = Color3.fromRGB(255, 255, 255)
 introTitleGlow.Thickness = 2
 introTitleGlow.Transparency = 1
 introTitleGlow.Parent = introTitle
-
 local introTitleGrad = Instance.new("UIGradient")
 introTitleGrad.Parent = introTitle
 
@@ -92,13 +87,11 @@ introSubtitle.TextSize = 24
 introSubtitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 introSubtitle.TextTransparency = 1
 introSubtitle.Parent = introFrame
-
 local introSubGlow = Instance.new("UIStroke")
 introSubGlow.Color = Color3.fromRGB(255, 255, 255)
 introSubGlow.Thickness = 1.5
 introSubGlow.Transparency = 1
 introSubGlow.Parent = introSubtitle
-
 local introSubGrad = Instance.new("UIGradient")
 introSubGrad.Parent = introSubtitle
 
@@ -112,13 +105,11 @@ introAuthor.TextSize = 16
 introAuthor.TextColor3 = Color3.fromRGB(255, 255, 255)
 introAuthor.TextTransparency = 1
 introAuthor.Parent = introFrame
-
 local introAuthorGlow = Instance.new("UIStroke")
 introAuthorGlow.Color = Color3.fromRGB(255, 255, 255)
 introAuthorGlow.Thickness = 1
 introAuthorGlow.Transparency = 1
 introAuthorGlow.Parent = introAuthor
-
 local introAuthorGrad = Instance.new("UIGradient")
 introAuthorGrad.Parent = introAuthor
 
@@ -129,22 +120,18 @@ introLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 introLine.BorderSizePixel = 0
 introLine.BackgroundTransparency = 1
 introLine.Parent = introFrame
-
 local introLineGlow = Instance.new("UIStroke")
 introLineGlow.Color = Color3.fromRGB(255, 255, 255)
 introLineGlow.Thickness = 1.5
 introLineGlow.Transparency = 1
 introLineGlow.Parent = introLine
-
 local introLineGrad = Instance.new("UIGradient")
 introLineGrad.Parent = introLine
 
--- Анимация интро
 local introClock = 0
 local introConn
 introConn = RunService.Heartbeat:Connect(function(dt)
     introClock += dt
-    
     for _, flake in ipairs(snowflakesIntro) do
         flake.y = flake.y + flake.speed * dt
         flake.x = flake.x + flake.wind * dt + math.sin(introClock * 1.2 + flake.twinkle) * 0.001
@@ -156,7 +143,6 @@ introConn = RunService.Heartbeat:Connect(function(dt)
         flake.dot.BackgroundTransparency = 1 - brightness * 0.5
         flake.glow.Transparency = 1 - brightness * 0.3
     end
-    
     local wave = math.sin(introClock * 0.8) * 0.15
     local whitePos = 0.55 + wave
     local gradSequence = ColorSequence.new({
@@ -169,7 +155,6 @@ introConn = RunService.Heartbeat:Connect(function(dt)
     introSubGrad.Color = gradSequence
     introAuthorGrad.Color = gradSequence
     introLineGrad.Color = gradSequence
-    
     local glowPulse = math.sin(introClock * 1.5) * 0.08 + 0.92
     introTitleGlow.Transparency = introTitle.TextTransparency + (1 - glowPulse)
     introSubGlow.Transparency = introSubtitle.TextTransparency + (1 - glowPulse)
@@ -213,7 +198,6 @@ task.spawn(function()
     introGui:Destroy()
 end)
 
--- Ждём завершения интро перед созданием GUI
 task.wait(10.9)
 
 -- ==================== ОСНОВНОЙ СКРИПТ ====================
@@ -222,75 +206,25 @@ local START_PANEL_TRANSPARENCY = 0.5
 local START_IMAGE_TRANSPARENCY = 0.05
 
 local S = {
-    godmode = false, jumppower = false, speed = false, autofarm = false, autofarmv2 = false,
-    autododge = false, freezetime = false, perfecttime = false, deleteball = false, autoskill = false,
-    esp = false, espballs = false, antiafk = false, noclip = false,
-    hitboxview = false, aura = false, spinbot = false, ballpet = false,
-    perfectring = false, reset = false, rainbowesp = false, musicplayer = false,
-    ballredirect = false, snowEffect = false,
-    jumpVal = 100, speedVal = 50, freezeStr = 2, tpY = 80,
-    perfectRange = 10, petRange = 8, auraText = "John Doe",
+    jumppower = false, speed = false, autofarm = false, autofarmv2 = false,
+    autododge = false, autoskill = false,
+    esp = false, antiafk = false, noclip = false,
+    aura = false, spinbot = false, reset = false, rainbowesp = false, musicplayer = false,
+    snowEffect = false,
+    jumpVal = 100, speedVal = 50, tpY = 80,
+    auraText = "John Doe",
     musicID = "rbxassetid://1842801835", spinSpeed = 10, theme = "Cosmic",
     bgTransparency = math.floor(START_PANEL_TRANSPARENCY * 100), dodgeDistance = 15, dodgeCooldown = 0.3
 }
 
 local Themes = {
-    Blood = {
-        ACCENT = Color3.fromRGB(255,0,0), ACCENT2 = Color3.fromRGB(0,0,0),
-        BG = Color3.fromRGB(20,5,5), BG2 = Color3.fromRGB(30,8,8), BG3 = Color3.fromRGB(45,12,12),
-        TXT = Color3.fromRGB(255,240,240), SUB = Color3.fromRGB(200,150,150),
-        Stroke = Color3.fromRGB(120,15,15), SwitchOff = Color3.fromRGB(45,12,12),
-        TitleGrad1 = Color3.fromRGB(255,0,0), TitleGrad2 = Color3.fromRGB(0,0,0),
-        ByGrad1 = Color3.fromRGB(255,80,80), ByGrad2 = Color3.fromRGB(0,0,0)
-    },
-    Ocean = {
-        ACCENT = Color3.fromRGB(0,100,255), ACCENT2 = Color3.fromRGB(0,0,40),
-        BG = Color3.fromRGB(5,8,20), BG2 = Color3.fromRGB(8,12,30), BG3 = Color3.fromRGB(12,18,45),
-        TXT = Color3.fromRGB(235,240,255), SUB = Color3.fromRGB(140,160,200),
-        Stroke = Color3.fromRGB(15,40,120), SwitchOff = Color3.fromRGB(12,18,45),
-        TitleGrad1 = Color3.fromRGB(0,150,255), TitleGrad2 = Color3.fromRGB(0,0,50),
-        ByGrad1 = Color3.fromRGB(0,180,255), ByGrad2 = Color3.fromRGB(0,0,50)
-    },
-    Midnight = {
-        ACCENT = Color3.fromRGB(140,0,255), ACCENT2 = Color3.fromRGB(5,0,20),
-        BG = Color3.fromRGB(8,5,20), BG2 = Color3.fromRGB(14,8,30), BG3 = Color3.fromRGB(22,12,45),
-        TXT = Color3.fromRGB(240,235,255), SUB = Color3.fromRGB(160,140,200),
-        Stroke = Color3.fromRGB(50,10,120), SwitchOff = Color3.fromRGB(22,12,45),
-        TitleGrad1 = Color3.fromRGB(170,50,255), TitleGrad2 = Color3.fromRGB(10,0,30),
-        ByGrad1 = Color3.fromRGB(180,80,255), ByGrad2 = Color3.fromRGB(10,0,30)
-    },
-    Forest = {
-        ACCENT = Color3.fromRGB(0,200,50), ACCENT2 = Color3.fromRGB(0,15,0),
-        BG = Color3.fromRGB(5,15,5), BG2 = Color3.fromRGB(8,22,8), BG3 = Color3.fromRGB(12,32,12),
-        TXT = Color3.fromRGB(235,255,235), SUB = Color3.fromRGB(140,200,140),
-        Stroke = Color3.fromRGB(15,80,15), SwitchOff = Color3.fromRGB(12,32,12),
-        TitleGrad1 = Color3.fromRGB(0,255,80), TitleGrad2 = Color3.fromRGB(0,20,0),
-        ByGrad1 = Color3.fromRGB(50,255,100), ByGrad2 = Color3.fromRGB(0,20,0)
-    },
-    Sunset = {
-        ACCENT = Color3.fromRGB(255,120,0), ACCENT2 = Color3.fromRGB(20,3,0),
-        BG = Color3.fromRGB(18,8,3), BG2 = Color3.fromRGB(28,12,5), BG3 = Color3.fromRGB(42,18,8),
-        TXT = Color3.fromRGB(255,245,235), SUB = Color3.fromRGB(200,160,120),
-        Stroke = Color3.fromRGB(100,30,5), SwitchOff = Color3.fromRGB(42,18,8),
-        TitleGrad1 = Color3.fromRGB(255,150,30), TitleGrad2 = Color3.fromRGB(30,5,0),
-        ByGrad1 = Color3.fromRGB(255,170,50), ByGrad2 = Color3.fromRGB(30,5,0)
-    },
-    System = {
-        ACCENT = Color3.fromRGB(0,200,200), ACCENT2 = Color3.fromRGB(0,20,20),
-        BG = Color3.fromRGB(3,15,15), BG2 = Color3.fromRGB(5,22,22), BG3 = Color3.fromRGB(8,32,32),
-        TXT = Color3.fromRGB(220,255,255), SUB = Color3.fromRGB(130,200,200),
-        Stroke = Color3.fromRGB(10,80,80), SwitchOff = Color3.fromRGB(8,32,32),
-        TitleGrad1 = Color3.fromRGB(0,255,255), TitleGrad2 = Color3.fromRGB(0,30,30),
-        ByGrad1 = Color3.fromRGB(50,255,255), ByGrad2 = Color3.fromRGB(0,30,30)
-    },
-    Cosmic = {
-        ACCENT = Color3.fromRGB(180,130,255), ACCENT2 = Color3.fromRGB(0,0,0),
-        BG = Color3.fromRGB(5,3,12), BG2 = Color3.fromRGB(10,5,22), BG3 = Color3.fromRGB(18,10,35),
-        TXT = Color3.fromRGB(245,240,255), SUB = Color3.fromRGB(170,155,210),
-        Stroke = Color3.fromRGB(80,50,140), SwitchOff = Color3.fromRGB(18,10,35),
-        TitleGrad1 = Color3.fromRGB(200,150,255), TitleGrad2 = Color3.fromRGB(30,10,60),
-        ByGrad1 = Color3.fromRGB(210,170,255), ByGrad2 = Color3.fromRGB(30,10,60)
-    }
+    Blood = { ACCENT = Color3.fromRGB(255,0,0), ACCENT2 = Color3.fromRGB(0,0,0), BG = Color3.fromRGB(20,5,5), BG2 = Color3.fromRGB(30,8,8), BG3 = Color3.fromRGB(45,12,12), TXT = Color3.fromRGB(255,240,240), SUB = Color3.fromRGB(200,150,150), Stroke = Color3.fromRGB(120,15,15), SwitchOff = Color3.fromRGB(45,12,12), TitleGrad1 = Color3.fromRGB(255,0,0), TitleGrad2 = Color3.fromRGB(0,0,0), ByGrad1 = Color3.fromRGB(255,80,80), ByGrad2 = Color3.fromRGB(0,0,0) },
+    Ocean = { ACCENT = Color3.fromRGB(0,100,255), ACCENT2 = Color3.fromRGB(0,0,40), BG = Color3.fromRGB(5,8,20), BG2 = Color3.fromRGB(8,12,30), BG3 = Color3.fromRGB(12,18,45), TXT = Color3.fromRGB(235,240,255), SUB = Color3.fromRGB(140,160,200), Stroke = Color3.fromRGB(15,40,120), SwitchOff = Color3.fromRGB(12,18,45), TitleGrad1 = Color3.fromRGB(0,150,255), TitleGrad2 = Color3.fromRGB(0,0,50), ByGrad1 = Color3.fromRGB(0,180,255), ByGrad2 = Color3.fromRGB(0,0,50) },
+    Midnight = { ACCENT = Color3.fromRGB(140,0,255), ACCENT2 = Color3.fromRGB(5,0,20), BG = Color3.fromRGB(8,5,20), BG2 = Color3.fromRGB(14,8,30), BG3 = Color3.fromRGB(22,12,45), TXT = Color3.fromRGB(240,235,255), SUB = Color3.fromRGB(160,140,200), Stroke = Color3.fromRGB(50,10,120), SwitchOff = Color3.fromRGB(22,12,45), TitleGrad1 = Color3.fromRGB(170,50,255), TitleGrad2 = Color3.fromRGB(10,0,30), ByGrad1 = Color3.fromRGB(180,80,255), ByGrad2 = Color3.fromRGB(10,0,30) },
+    Forest = { ACCENT = Color3.fromRGB(0,200,50), ACCENT2 = Color3.fromRGB(0,15,0), BG = Color3.fromRGB(5,15,5), BG2 = Color3.fromRGB(8,22,8), BG3 = Color3.fromRGB(12,32,12), TXT = Color3.fromRGB(235,255,235), SUB = Color3.fromRGB(140,200,140), Stroke = Color3.fromRGB(15,80,15), SwitchOff = Color3.fromRGB(12,32,12), TitleGrad1 = Color3.fromRGB(0,255,80), TitleGrad2 = Color3.fromRGB(0,20,0), ByGrad1 = Color3.fromRGB(50,255,100), ByGrad2 = Color3.fromRGB(0,20,0) },
+    Sunset = { ACCENT = Color3.fromRGB(255,120,0), ACCENT2 = Color3.fromRGB(20,3,0), BG = Color3.fromRGB(18,8,3), BG2 = Color3.fromRGB(28,12,5), BG3 = Color3.fromRGB(42,18,8), TXT = Color3.fromRGB(255,245,235), SUB = Color3.fromRGB(200,160,120), Stroke = Color3.fromRGB(100,30,5), SwitchOff = Color3.fromRGB(42,18,8), TitleGrad1 = Color3.fromRGB(255,150,30), TitleGrad2 = Color3.fromRGB(30,5,0), ByGrad1 = Color3.fromRGB(255,170,50), ByGrad2 = Color3.fromRGB(30,5,0) },
+    System = { ACCENT = Color3.fromRGB(0,200,200), ACCENT2 = Color3.fromRGB(0,20,20), BG = Color3.fromRGB(3,15,15), BG2 = Color3.fromRGB(5,22,22), BG3 = Color3.fromRGB(8,32,32), TXT = Color3.fromRGB(220,255,255), SUB = Color3.fromRGB(130,200,200), Stroke = Color3.fromRGB(10,80,80), SwitchOff = Color3.fromRGB(8,32,32), TitleGrad1 = Color3.fromRGB(0,255,255), TitleGrad2 = Color3.fromRGB(0,30,30), ByGrad1 = Color3.fromRGB(50,255,255), ByGrad2 = Color3.fromRGB(0,30,30) },
+    Cosmic = { ACCENT = Color3.fromRGB(180,130,255), ACCENT2 = Color3.fromRGB(0,0,0), BG = Color3.fromRGB(5,3,12), BG2 = Color3.fromRGB(10,5,22), BG3 = Color3.fromRGB(18,10,35), TXT = Color3.fromRGB(245,240,255), SUB = Color3.fromRGB(170,155,210), Stroke = Color3.fromRGB(80,50,140), SwitchOff = Color3.fromRGB(18,10,35), TitleGrad1 = Color3.fromRGB(200,150,255), TitleGrad2 = Color3.fromRGB(30,10,60), ByGrad1 = Color3.fromRGB(210,170,255), ByGrad2 = Color3.fromRGB(30,10,60) }
 }
 
 local currentTheme = Themes[S.theme]
@@ -323,14 +257,12 @@ main.BackgroundTransparency = 1
 
 local mst = Instance.new("UIStroke",main); mst.Color = currentTheme.Stroke; mst.Thickness = 1.5; mst.Transparency = 0
 
--- ФОН
 local bg = Instance.new("ImageLabel")
 bg.Name = "SM1LE_WorkingBackground"; bg.BackgroundTransparency = 1; bg.BorderSizePixel = 0
 bg.Position = UDim2.fromScale(0,0); bg.Size = UDim2.fromScale(1,1)
 bg.Image = toImageContent(START_BACKGROUND); bg.ScaleType = Enum.ScaleType.Crop
 bg.ImageTransparency = START_IMAGE_TRANSPARENCY; bg.ZIndex = 1; bg.Parent = main; corner(bg,16)
 
--- СНЕГ В ОКНЕ
 local snowContainer = Instance.new("Frame")
 snowContainer.Name = "SnowContainer"; snowContainer.Size = UDim2.new(1,0,1,0)
 snowContainer.Position = UDim2.fromScale(0,0); snowContainer.BackgroundTransparency = 1
@@ -347,13 +279,11 @@ for i = 1, 30 do
     flake.BorderSizePixel = 0
     flake.Parent = snowContainer
     corner(flake, size / 2)
-    
     local glow = Instance.new("UIStroke")
     glow.Color = Color3.fromRGB(255, 255, 255)
     glow.Thickness = 1
     glow.Transparency = 0.6
     glow.Parent = flake
-    
     windowSnowflakes[i] = {
         dot = flake, glow = glow,
         x = flake.Position.X.Scale, y = flake.Position.Y.Scale,
@@ -418,7 +348,6 @@ main.DescendantAdded:Connect(function(object)
     end
 end)
 
--- HEADER
 local header = Instance.new("Frame"); header.Size = UDim2.new(1,0,0,56); header.BackgroundColor3 = BG2; header.BorderSizePixel = 0; header.Parent = main; corner(header,16)
 header.BackgroundTransparency = START_PANEL_TRANSPARENCY
 local hfix = Instance.new("Frame"); hfix.Size = UDim2.new(1,0,0,16); hfix.Position = UDim2.new(0,0,1,-16); hfix.BackgroundColor3 = BG2; hfix.BorderSizePixel = 0; hfix.Parent = header
@@ -598,12 +527,10 @@ applyPanelTransparency(START_PANEL_TRANSPARENCY)
 
 local pPlayer = makeTab("Player","🏃")
 local pFarm = makeTab("Farm","🤖")
-local pBall = makeTab("Ball","⚽")
 local pVisuals = makeTab("Visuals","👁️")
 local pFun = makeTab("Fun","🎵")
 local pSettings = makeTab("Settings","⚙️")
 
-makeToggle(pPlayer,"God Mode","Wall shield that pushes balls away","godmode")
 makeToggle(pPlayer,"Jump Power","Super high jumps","jumppower")
 makeToggle(pPlayer,"Speed Boost","Move faster than everyone","speed")
 makeToggle(pPlayer,"Noclip","Walk through walls & obstacles","noclip")
@@ -622,20 +549,8 @@ makeToggle(pFarm,"Auto Skill","Auto-use all inventory abilities","autoskill")
 makeSlider(pFarm,"Distance Behind","How far behind player to hang","tpY",30,200,80)
 makeSlider(pFarm,"Dodge Distance","How close ball must be to dodge","dodgeDistance",5,30,15)
 
-makeToggle(pBall,"Freeze Time","FREEZE all balls completely","freezetime")
-makeToggle(pBall,"Perfect Time","Precision slow zone near you","perfecttime")
-makeToggle(pBall,"Perfect Ring","Show flat circle range indicator","perfectring")
-makeToggle(pBall,"Ball Pet","Balls get stuck in your shield","ballpet")
-makeToggle(pBall,"Delete Ball V2","Mega-push balls at max speed","deleteball")
-makeToggle(pBall,"Ball Redirect","Push balls to nearest player","ballredirect")
-makeSlider(pBall,"Freeze Strength","How much to slow the ball (1-10)","freezeStr",1,10,2)
-makeSlider(pBall,"Perfect Range","Range of perfect time circle","perfectRange",5,30,10)
-makeSlider(pBall,"Pet Range","How close ball must be to get trapped","petRange",4,20,8)
-
 makeToggle(pVisuals,"ESP Players","See players through walls","esp")
 makeToggle(pVisuals,"Rainbow ESP","Rainbow colored highlights","rainbowesp")
-makeToggle(pVisuals,"ESP Balls","See balls through walls","espballs")
-makeToggle(pVisuals,"Hitbox Viewer","See god mode & freeze zones","hitboxview")
 makeToggle(pVisuals,"Anti AFK","Never get kicked for idling","antiafk")
 
 makeToggle(pFun,"Music Player","Play music in background","musicplayer")
@@ -654,7 +569,6 @@ for themeName,_ in pairs(Themes) do
     end)
 end
 
--- BACKGROUND SETTINGS
 local function findSettingsPage()
     for _, object in ipairs(main:GetDescendants()) do
         if object:IsA("ScrollingFrame") then
@@ -672,7 +586,6 @@ if settingsPage then
     local t1 = Instance.new("TextLabel"); t1.LayoutOrder = 900; t1.Size = UDim2.new(1,0,0,0); t1.AutomaticSize = Enum.AutomaticSize.Y
     t1.BackgroundTransparency = 1; t1.Font = Enum.Font.GothamBold; t1.TextSize = 12; t1.TextColor3 = ACCENT; t1.TextWrapped = true
     t1.TextXAlignment = Enum.TextXAlignment.Left; t1.Text = "Background Image:"; t1.Parent = settingsPage
-
     local row = Instance.new("Frame"); row.LayoutOrder = 901; row.Size = UDim2.new(1,0,0,72); row.BackgroundColor3 = BG2
     row.BackgroundTransparency = START_PANEL_TRANSPARENCY; row.BorderSizePixel = 0; row.Parent = settingsPage; corner(row,10)
     local rs = Instance.new("UIStroke",row); rs.Color = currentTheme.Stroke; rs.Transparency = 0.25
@@ -689,7 +602,6 @@ if settingsPage then
     hint.TextXAlignment = Enum.TextXAlignment.Left; hint.Text = "Use Roblox IDs/links. External JPG/PNG URLs usually do not load in ImageLabel."
     hint.Parent = row
     box.FocusLost:Connect(function() bg.Image = toImageContent(box.Text) end)
-
     local sRow = Instance.new("Frame"); sRow.LayoutOrder = 902; sRow.Size = UDim2.new(1,0,0,70); sRow.BackgroundColor3 = BG2
     sRow.BackgroundTransparency = START_PANEL_TRANSPARENCY; sRow.BorderSizePixel = 0; sRow.Parent = settingsPage; corner(sRow,10)
     local ss = Instance.new("UIStroke",sRow); ss.Color = currentTheme.Stroke; ss.Transparency = 0.25
@@ -738,333 +650,319 @@ local mini=false; minB.MouseButton1Click:Connect(function() mini=not mini; Tween
 UserInputService.InputBegan:Connect(function(i,gpe) if gpe then return end; if i.KeyCode==Enum.KeyCode.RightControl then main.Visible=not main.Visible end end)
 
 -- ==================== ИГРОВЫЕ ФИЧИ ====================
-local alive = true; local lastAutofarmPos = nil
-local cachedBalls = {}; local lastBallCache = 0
+local alive = true
+local lastAutofarmPos = nil
 
-local function getBalls()
-    if tick()-lastBallCache>0.05 then cachedBalls={}
-        for _,obj in ipairs(workspace:GetDescendants()) do if obj:IsA("BasePart") and (obj.Name:lower():find("ball") or obj:GetAttribute("IsBall")) then table.insert(cachedBalls,obj) end end
-        lastBallCache=tick()
+local function findBalls()
+    local balls = {}
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and (obj.Name:lower():find("ball") or obj:GetAttribute("IsBall")) then
+            table.insert(balls, obj)
+        end
     end
-    return cachedBalls
+    return balls
 end
 
-local function findNearestBall(pos)
-    local nearest=nil; local minDist=math.huge
-    for _,ball in ipairs(getBalls()) do if ball and ball.Parent then local dist=(ball.Position-pos).Magnitude; if dist<minDist then minDist=dist; nearest=ball end end end
-    return nearest,minDist
-end
-
-local function getPlayerTeam(player)
-    local team = player.Team; if team then return team.Name end
-    local char = player.Character; if not char then return nil end
-    for _, child in ipairs(char:GetChildren()) do if child:IsA("Folder") and child.Name:lower():find("team") then return child.Name end end
-    local teamAttr = player:GetAttribute("Team") or player:GetAttribute("team")
-    if teamAttr then return teamAttr end
-    return nil
+local function getPlayerTeam(p)
+    if p.Team then return p.Team.Name end
+    return p:GetAttribute("Team") or p:GetAttribute("team")
 end
 
 local function getNearestTeammate()
-    local myTeam = getPlayerTeam(lp); if not myTeam then return nil end
-    local nearest = nil; local minDist = math.huge
-    local char = lp.Character; if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+    local myTeam = getPlayerTeam(lp)
+    if not myTeam then return nil end
+    local char = lp.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
     local myPos = char.HumanoidRootPart.Position
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= lp and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local playerTeam = getPlayerTeam(player)
-            if playerTeam == myTeam then
-                local dist = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
-                if dist < minDist then minDist = dist; nearest = player end
-            end
-        end
-    end
-    return nearest
-end
-
-local function getNearestPlayer()
-    local nearest = nil; local minDist = math.huge
-    local char = lp.Character; if not char then return nil end
-    local root = char:FindFirstChild("HumanoidRootPart"); if not root then return nil end
-    local myPos = root.Position
-    for _,p in ipairs(Players:GetPlayers()) do
+    local nearest, minDist = nil, math.huge
+    for _, p in ipairs(Players:GetPlayers()) do
         if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            local dist = (p.Character.HumanoidRootPart.Position - myPos).Magnitude
-            if dist < minDist then minDist = dist; nearest = p end
+            if getPlayerTeam(p) == myTeam then
+                local d = (p.Character.HumanoidRootPart.Position - myPos).Magnitude
+                if d < minDist then minDist = d; nearest = p end
+            end
         end
     end
     return nearest
 end
 
-local function pressKey(keyCode, isDown)
-    pcall(function() VIM:SendKeyEvent(isDown, keyCode, false, nil) end)
-end
-
-local function stopAllMovement()
-    pressKey(Enum.KeyCode.W, false); pressKey(Enum.KeyCode.A, false)
-    pressKey(Enum.KeyCode.S, false); pressKey(Enum.KeyCode.D, false)
-    pressKey(Enum.KeyCode.LeftShift, false)
-end
-
-local function performDash(direction)
-    local key = direction == "left" and Enum.KeyCode.Q or Enum.KeyCode.E
-    pressKey(key, true); task.wait(0.02); pressKey(key, false)
-    return true
-end
-
+-- JUMP POWER & SPEED
 RunService.Heartbeat:Connect(function()
-    if not S.spinbot then return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    root.CFrame=root.CFrame*CFrame.Angles(0,math.rad(S.spinSpeed),0)
-    local hum=char:FindFirstChild("Humanoid"); if hum then hum.AutoRotate=false end
+    local char = lp.Character
+    if not char then return end
+    local hum = char:FindFirstChild("Humanoid")
+    if not hum then return end
+    if S.jumppower then hum.JumpPower = S.jumpVal end
+    if S.speed then hum.WalkSpeed = S.speedVal end
 end)
 
-local godPart
-RunService.Heartbeat:Connect(function()
-    if not S.godmode then if godPart then godPart:Destroy(); godPart=nil end return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    if not godPart or not godPart.Parent then if godPart then godPart:Destroy() end
-        godPart=Instance.new("Part"); godPart.Name="GodShield"; godPart.Size=Vector3.new(10,10,10)
-        godPart.Transparency=S.hitboxview and 0.6 or 1; godPart.Color=Color3.fromRGB(255,0,0)
-        godPart.Material=Enum.Material.ForceField; godPart.CanCollide=false; godPart.Anchored=true; godPart.Parent=workspace
-    end
-    godPart.CFrame=root.CFrame; godPart.Transparency=S.hitboxview and 0.6 or 1
-    local balls=getBalls()
-    for _,ball in ipairs(balls) do if ball and ball.Parent and (ball.Position-godPart.Position).Magnitude<8 then
-        local dir=(ball.Position-godPart.Position).Unit; if dir.Magnitude<0.1 then dir=Vector3.new(0,1,0) end
-        ball.Velocity=dir*25; ball.AssemblyLinearVelocity=dir*25
-    end end
-end)
-
-local deletePart
-RunService.Heartbeat:Connect(function()
-    if not S.deleteball then if deletePart then deletePart:Destroy(); deletePart=nil end return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    if not deletePart or not deletePart.Parent then if deletePart then deletePart:Destroy() end
-        deletePart=Instance.new("Part"); deletePart.Name="DeleteShield"; deletePart.Size=Vector3.new(14,14,14)
-        deletePart.Transparency=S.hitboxview and 0.5 or 1; deletePart.Color=Color3.fromRGB(255,0,0)
-        deletePart.Material=Enum.Material.ForceField; deletePart.CanCollide=false; deletePart.Anchored=true; deletePart.Parent=workspace
-    end
-    deletePart.CFrame=root.CFrame; deletePart.Transparency=S.hitboxview and 0.5 or 1
-    for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-deletePart.Position).Magnitude<10 then
-        local dir=(ball.Position-deletePart.Position).Unit
-        if dir.Magnitude<0.1 then dir=Vector3.new(math.random(-1,1),1,math.random(-1,1)).Unit end
-        ball.Velocity=dir*2000; ball.AssemblyLinearVelocity=dir*2000
-    end end
-end)
-
-local redirectPart
-RunService.Heartbeat:Connect(function()
-    if not S.ballredirect then if redirectPart then redirectPart:Destroy(); redirectPart=nil end return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    if not redirectPart or not redirectPart.Parent then if redirectPart then redirectPart:Destroy() end
-        redirectPart=Instance.new("Part"); redirectPart.Name="RedirectShield"; redirectPart.Size=Vector3.new(16,16,16)
-        redirectPart.Transparency=S.hitboxview and 0.5 or 1; redirectPart.Color=Color3.fromRGB(255,0,255)
-        redirectPart.Material=Enum.Material.ForceField; redirectPart.CanCollide=false; redirectPart.Anchored=true; redirectPart.Parent=workspace
-    end
-    redirectPart.CFrame=root.CFrame; redirectPart.Transparency=S.hitboxview and 0.5 or 1
-    local target = getNearestPlayer()
-    for _,ball in ipairs(getBalls()) do
-        if ball and ball.Parent and (ball.Position-redirectPart.Position).Magnitude<12 then
-            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-                local targetPos = target.Character.HumanoidRootPart.Position
-                local dir = (targetPos - ball.Position).Unit
-                ball.Velocity = dir * 500; ball.AssemblyLinearVelocity = dir * 500
-            else
-                local dir = (ball.Position - redirectPart.Position).Unit
-                if dir.Magnitude < 0.1 then dir = Vector3.new(0, 1, 0) end
-                ball.Velocity = dir * 500; ball.AssemblyLinearVelocity = dir * 500
-            end
-        end
-    end
-end)
-
-local trappedBalls = {}
-RunService.Heartbeat:Connect(function()
-    if not S.ballpet then
-        for ball,_ in pairs(trappedBalls) do pcall(function() if ball and ball.Parent then ball.Anchored=false; ball.Velocity=Vector3.new(math.random(-50,50),math.random(50,100),math.random(-50,50)) end end) end
-        table.clear(trappedBalls); return
-    end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-root.Position).Magnitude<S.petRange then trappedBalls[ball]=true; ball.Anchored=true; ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end end
-    for ball,_ in pairs(trappedBalls) do pcall(function() if ball and ball.Parent then if (ball.Position-root.Position).Magnitude>S.petRange+3 then ball.Anchored=false; trappedBalls[ball]=nil else ball.Anchored=true; ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end else trappedBalls[ball]=nil end end) end
-end)
-
-RunService.Heartbeat:Connect(function()
-    local char=lp.Character; if not char then return end
-    local hum=char:FindFirstChild("Humanoid"); if not hum then return end
-    if S.jumppower then hum.JumpPower=S.jumpVal end
-    if S.speed then hum.WalkSpeed=S.speedVal end
-end)
-
+-- NOCLIP
 RunService.Stepped:Connect(function()
     if not S.noclip then return end
-    local char=lp.Character; if char then for _,p in ipairs(char:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide=false end end end
-end)
-
-RunService.Heartbeat:Connect(function()
-    if not S.autofarm then if lastAutofarmPos then local char=lp.Character; if char then local root=char:FindFirstChild("HumanoidRootPart"); if root then local nearestBall=findNearestBall(root.Position); if nearestBall then root.CFrame=CFrame.new(nearestBall.Position+Vector3.new(0,15,0)); root.Velocity=Vector3.zero end; local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=false end end end; lastAutofarmPos=nil end; return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    local target=nil; for _,p in ipairs(Players:GetPlayers()) do if p~=lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then target=p; break end end
-    if target then local tr=target.Character.HumanoidRootPart; local behind=-tr.CFrame.LookVector; local targetPos=tr.Position+behind*S.tpY+Vector3.new(0,2,0)
-        local moveDir=(targetPos-root.Position); if moveDir.Magnitude>1 then root.Velocity=moveDir.Unit*50 else root.Velocity=Vector3.new(0,0.5,0) end
-        local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=true end; lastAutofarmPos=targetPos
-    else root.Velocity=Vector3.new(0,0.5,0); local hum=char:FindFirstChild("Humanoid"); if hum then hum.PlatformStand=true end end
-end)
-
-RunService.Heartbeat:Connect(function()
-    if not S.autofarmv2 then return end
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    local hum=char:FindFirstChild("Humanoid")
-    local myTeam=getPlayerTeam(lp)
-    if not myTeam or myTeam:lower():find("lobby") then
-        if hum then hum.PlatformStand=false end
-        root.Velocity=Vector3.zero; root.RotVelocity=Vector3.zero; return
-    end
-    local teammate=getNearestTeammate()
-    if teammate and teammate.Character and teammate.Character:FindFirstChild("HumanoidRootPart") then
-        local tr=teammate.Character.HumanoidRootPart
-        root.CFrame=CFrame.new(Vector3.new(tr.Position.X,-5,tr.Position.Z))
-        root.Velocity=Vector3.zero; root.RotVelocity=Vector3.zero
-        if hum then hum.PlatformStand=true; hum.AutoRotate=false end
-    else
-        root.CFrame=CFrame.new(Vector3.new(root.Position.X,-10,root.Position.Z))
-        root.Velocity=Vector3.zero; root.RotVelocity=Vector3.zero
-        if hum then hum.PlatformStand=true end
-    end
-end)
-
-local lastDashTime=0; local lastScanTime=0
-RunService.Heartbeat:Connect(function()
-    if not S.autododge then stopAllMovement(); return end
-    if tick()-lastDashTime<S.dodgeCooldown then return end
-    if tick()-lastScanTime<0.05 then return end
-    lastScanTime=tick()
-    local char=lp.Character; if not char then return end
-    local root=char:FindFirstChild("HumanoidRootPart"); if not root then return end
-    local hum=char:FindFirstChild("Humanoid"); if not hum or hum.Health<=0 then return end
-    local myPos=root.Position
-    local nearestBall=nil; local nearestDist=S.dodgeDistance; local nearestCrossSide=nil
-    for _,ball in ipairs(getBalls()) do
-        if ball and ball.Parent and ball.Velocity.Magnitude>5 then
-            local ballPos=ball.Position; local dist=(ballPos-myPos).Magnitude
-            local futurePos=ballPos+ball.Velocity*0.2; local futureDist=(futurePos-myPos).Magnitude
-            if futureDist<4.0 and dist<nearestDist then
-                nearestDist=dist; nearestBall=ball
-                local toBall=(ballPos-myPos).Unit
-                local cross=toBall:Cross(Vector3.new(0,1,0))
-                nearestCrossSide=cross:Dot(root.CFrame.RightVector)>0 and "right" or "left"
-            end
+    local char = lp.Character
+    if char then
+        for _, p in ipairs(char:GetDescendants()) do
+            if p:IsA("BasePart") then p.CanCollide = false end
         end
     end
-    if nearestBall then
-        if nearestCrossSide=="right" then performDash("left") else performDash("right") end
-        lastDashTime=tick()
-    else stopAllMovement() end
 end)
 
-local freezePart
-task.spawn(function() while alive do
-    if S.freezetime then
-        if not freezePart or not freezePart.Parent then freezePart=Instance.new("Part"); freezePart.Name="FreezeZone"; freezePart.Size=Vector3.new(300,300,300)
-            freezePart.Transparency=S.hitboxview and 0.4 or 1; freezePart.Color=Color3.fromRGB(0,150,255)
-            freezePart.Anchored=true; freezePart.CanCollide=false; freezePart.Parent=workspace end
-        freezePart.CFrame=CFrame.new(0,150,0); freezePart.Transparency=S.hitboxview and 0.4 or 1
-        for _,ball in ipairs(getBalls()) do if ball and ball.Parent then ball.Velocity=Vector3.zero; ball.AssemblyLinearVelocity=Vector3.zero end end
-    else if freezePart then freezePart:Destroy(); freezePart=nil end end
-    task.wait(0.05)
-end end)
-
-local perfectPart, perfectRing
-task.spawn(function() while alive do
-    if S.perfecttime then
-        local char=lp.Character; if char then local root=char:FindFirstChild("HumanoidRootPart"); if root then
-            if not perfectPart or not perfectPart.Parent then perfectPart=Instance.new("Part"); perfectPart.Name="PerfectZone"; perfectPart.Anchored=true; perfectPart.CanCollide=false; perfectPart.Parent=workspace end
-            perfectPart.Size=Vector3.new(S.perfectRange*2,S.perfectRange*2,S.perfectRange*2); perfectPart.CFrame=root.CFrame; perfectPart.Transparency=S.hitboxview and 0.4 or 1; perfectPart.Color=Color3.fromRGB(255,200,0)
-            if S.perfectring then
-                if not perfectRing or not perfectRing.Parent then if perfectRing then perfectRing:Destroy() end; perfectRing=Instance.new("Part"); perfectRing.Name="PerfectRing"; perfectRing.Shape=Enum.PartType.Cylinder; perfectRing.Anchored=true; perfectRing.CanCollide=false; perfectRing.Material=Enum.Material.Neon; perfectRing.Parent=workspace end
-                perfectRing.Size=Vector3.new(S.perfectRange*2,0.3,S.perfectRange*2); perfectRing.CFrame=CFrame.new(root.Position); perfectRing.Transparency=S.hitboxview and 0.4 or 1; perfectRing.Color=Color3.fromRGB(255,200,0)
-            else if perfectRing then perfectRing:Destroy(); perfectRing=nil end end
-            for _,ball in ipairs(getBalls()) do if ball and ball.Parent and (ball.Position-root.Position).Magnitude<S.perfectRange then ball.Velocity=ball.Velocity*0.01; ball.AssemblyLinearVelocity=ball.AssemblyLinearVelocity*0.01 end end
-        end end
-    else if perfectPart then perfectPart:Destroy(); perfectPart=nil end; if perfectRing then perfectRing:Destroy(); perfectRing=nil end end
-    task.wait(0.05)
-end end)
-
-task.spawn(function() while alive do if S.autoskill then local char=lp.Character; local backpack=lp:FindFirstChild("Backpack")
-    if char and backpack then for _,tool in ipairs(backpack:GetChildren()) do if tool:IsA("Tool") and alive and S.autoskill then pcall(function() tool.Parent=char; tool:Activate() end) end end
-    for _,tool in ipairs(char:GetChildren()) do if tool:IsA("Tool") and alive and S.autoskill then pcall(function() tool:Activate() end) end end end end
-    task.wait(0.3)
-end end)
-
-local auraBillboard, auraText
-task.spawn(function() while alive do if S.aura then local char=lp.Character; if char then local head=char:FindFirstChild("Head"); if head then
-    if not auraBillboard or not auraBillboard.Parent then if auraBillboard then auraBillboard:Destroy() end
-        auraBillboard=Instance.new("BillboardGui"); auraBillboard.Size=UDim2.new(0,200,0,60); auraBillboard.StudsOffset=Vector3.new(0,3,0); auraBillboard.Adornee=head; auraBillboard.Parent=char
-        auraText=Instance.new("TextLabel"); auraText.BackgroundTransparency=1; auraText.BorderSizePixel=0; auraText.Text=S.auraText; auraText.Font=Enum.Font.GothamBlack; auraText.TextSize=28; auraText.TextColor3=ACCENT; auraText.Size=UDim2.new(1,0,1,0)
-        Instance.new("UIStroke",auraText).Color=Color3.new(0,0,0); auraText:FindFirstChildOfClass("UIStroke").Thickness=3
-        local s2=Instance.new("UIStroke",auraText); s2.Color=Color3.fromRGB(255,255,255); s2.Thickness=1
-        auraText.Parent=auraBillboard
+-- AUTO FARM
+RunService.Heartbeat:Connect(function()
+    if not S.autofarm then
+        if lastAutofarmPos then
+            local char = lp.Character
+            if char then
+                local hum = char:FindFirstChild("Humanoid")
+                if hum then hum.PlatformStand = false end
+            end
+            lastAutofarmPos = nil
+        end
+        return
     end
-    if math.random(0,100)<10 then auraText.Text=({"NOHOPE","GIVEUP","BURNINHELL"})[math.random(1,3)] else auraText.Text=S.auraText end
-    auraText.Position=UDim2.new(0,math.random(-3,3),0,math.random(-3,3))
-end end
-else if auraBillboard then auraBillboard:Destroy(); auraBillboard=nil; auraText=nil end end
-task.wait(0.05) end end)
+    local char = lp.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    local target = nil
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            target = p; break
+        end
+    end
+    if target then
+        local tr = target.Character.HumanoidRootPart
+        local behind = -tr.CFrame.LookVector
+        local targetPos = tr.Position + behind * S.tpY + Vector3.new(0, 2, 0)
+        local moveDir = (targetPos - root.Position)
+        if moveDir.Magnitude > 1 then
+            root.Velocity = moveDir.Unit * 50
+        else
+            root.Velocity = Vector3.new(0, 0.5, 0)
+        end
+        local hum = char:FindFirstChild("Humanoid")
+        if hum then hum.PlatformStand = true end
+        lastAutofarmPos = targetPos
+    else
+        root.Velocity = Vector3.new(0, 0.5, 0)
+        local hum = char:FindFirstChild("Humanoid")
+        if hum then hum.PlatformStand = true end
+    end
+end)
 
+-- AUTO FARM V2
+RunService.Heartbeat:Connect(function()
+    if not S.autofarmv2 then return end
+    local char = lp.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    local team = getPlayerTeam(lp)
+    if team and not team:lower():find("lobby") then
+        local nearest = nil
+        local minDist = math.huge
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local pt = getPlayerTeam(p)
+                if pt == team then
+                    local d = (p.Character.HumanoidRootPart.Position - root.Position).Magnitude
+                    if d < minDist then minDist = d; nearest = p end
+                end
+            end
+        end
+        if nearest then
+            root.CFrame = CFrame.new(nearest.Character.HumanoidRootPart.Position.X, -5, nearest.Character.HumanoidRootPart.Position.Z)
+        end
+    end
+    root.Velocity = Vector3.zero
+end)
+
+-- AUTO DODGE (телепорт x6)
+local lastDashTime = 0
+task.spawn(function() while alive do if S.autododge and tick() - lastDashTime >= S.dodgeCooldown then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local root = char.HumanoidRootPart
+        local pos = root.Position
+        local side = nil
+        local nearDist = S.dodgeDistance
+        for _, v in ipairs(findBalls()) do
+            pcall(function()
+                if v and v.Parent and v.Velocity.Magnitude > 2 then
+                    local fp = v.Position + v.Velocity * 0.25
+                    if (fp - pos).Magnitude < 6 and (v.Position - pos).Magnitude < nearDist then
+                        nearDist = (v.Position - pos).Magnitude
+                        local cr = (v.Position - pos).Unit:Cross(Vector3.new(0,1,0))
+                        side = cr:Dot(root.CFrame.RightVector) > 0 and "right" or "left"
+                    end
+                end
+            end)
+        end
+        if side then
+            local dashDir = side == "right" and -root.CFrame.RightVector or root.CFrame.RightVector
+            root.CFrame = root.CFrame + dashDir * 6
+            lastDashTime = tick()
+        end
+    end
+end task.wait(0.03) end end)
+
+-- SPINBOT
+task.spawn(function() while alive do if S.spinbot then
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(S.spinSpeed), 0)
+    end
+end task.wait(0.01) end end)
+
+-- AUTO SKILL
+task.spawn(function()
+    while alive do
+        if S.autoskill then
+            local char = lp.Character
+            local backpack = lp:FindFirstChild("Backpack")
+            if char and backpack then
+                for _, tool in ipairs(backpack:GetChildren()) do
+                    if tool:IsA("Tool") and alive and S.autoskill then
+                        pcall(function() tool.Parent = char; tool:Activate() end)
+                    end
+                end
+                for _, tool in ipairs(char:GetChildren()) do
+                    if tool:IsA("Tool") and alive and S.autoskill then
+                        pcall(function() tool:Activate() end)
+                    end
+                end
+            end
+        end
+        task.wait(0.3)
+    end
+end)
+
+-- AURA
+local auraBillboard, auraText
+task.spawn(function()
+    while alive do
+        if S.aura then
+            local char = lp.Character
+            if char then
+                local head = char:FindFirstChild("Head")
+                if head then
+                    if not auraBillboard or not auraBillboard.Parent then
+                        if auraBillboard then auraBillboard:Destroy() end
+                        auraBillboard = Instance.new("BillboardGui")
+                        auraBillboard.Size = UDim2.new(0, 200, 0, 60)
+                        auraBillboard.StudsOffset = Vector3.new(0, 3, 0)
+                        auraBillboard.Adornee = head
+                        auraBillboard.Parent = char
+                        auraText = Instance.new("TextLabel")
+                        auraText.BackgroundTransparency = 1
+                        auraText.BorderSizePixel = 0
+                        auraText.Text = S.auraText
+                        auraText.Font = Enum.Font.GothamBlack
+                        auraText.TextSize = 28
+                        auraText.TextColor3 = ACCENT
+                        auraText.Size = UDim2.new(1, 0, 1, 0)
+                        local s1 = Instance.new("UIStroke", auraText); s1.Color = Color3.new(0, 0, 0); s1.Thickness = 3
+                        local s2 = Instance.new("UIStroke", auraText); s2.Color = Color3.fromRGB(255, 255, 255); s2.Thickness = 1
+                        auraText.Parent = auraBillboard
+                    end
+                    if math.random(0, 100) < 10 then
+                        auraText.Text = ({"NOHOPE", "GIVEUP", "BURNINHELL"})[math.random(1, 3)]
+                    else
+                        auraText.Text = S.auraText
+                    end
+                    auraText.Position = UDim2.new(0, math.random(-3, 3), 0, math.random(-3, 3))
+                end
+            end
+        else
+            if auraBillboard then auraBillboard:Destroy(); auraBillboard = nil; auraText = nil end
+        end
+        task.wait(0.05)
+    end
+end)
+
+-- ESP
 local espObjects = {}
-task.spawn(function() local rainbowHue=0
-while alive do if S.esp then rainbowHue=(rainbowHue+0.01)%1
-    for _,player in ipairs(Players:GetPlayers()) do if player~=lp and player.Character then local hum=player.Character:FindFirstChild("Humanoid"); if hum and hum.Health>0 then
-        if not espObjects[player] then local h=Instance.new("Highlight"); h.FillColor=Color3.fromRGB(255,80,80); h.OutlineColor=Color3.fromRGB(255,255,255); h.FillTransparency=0.4; h.Parent=player.Character; espObjects[player]=h end
-        if S.rainbowesp and espObjects[player] then local hue=(rainbowHue+player.UserId%100/100)%1; espObjects[player].FillColor=Color3.fromHSV(hue,1,1); espObjects[player].OutlineColor=Color3.fromHSV((hue+0.5)%1,1,1)
-        elseif not S.rainbowesp and espObjects[player] then espObjects[player].FillColor=Color3.fromRGB(255,80,80); espObjects[player].OutlineColor=Color3.fromRGB(255,255,255) end
-    end end end
-else for k,v in pairs(espObjects) do pcall(function() v:Destroy() end); espObjects[k]=nil end end
-if S.espballs then for _,ball in ipairs(getBalls()) do if ball and ball.Parent and not ball:FindFirstChild("BallESP") then local h=Instance.new("Highlight"); h.Name="BallESP"; h.FillColor=Color3.fromRGB(255,255,0); h.OutlineColor=Color3.fromRGB(255,0,0); h.FillTransparency=0.5; h.Parent=ball end
-    if S.rainbowesp then local ballEsp=ball:FindFirstChild("BallESP"); if ballEsp then local hue=(rainbowHue+#ball.Name%10/10)%1; ballEsp.FillColor=Color3.fromHSV(hue,1,1); ballEsp.OutlineColor=Color3.fromHSV((hue+0.5)%1,1,1) end end end
-else for _,ball in ipairs(getBalls()) do local esp=ball and ball:FindFirstChild("BallESP"); if esp then esp:Destroy() end end end
-task.wait(0.05) end end)
+task.spawn(function()
+    while alive do
+        if S.esp then
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player ~= lp and player.Character then
+                    local hum = player.Character:FindFirstChild("Humanoid")
+                    if hum and hum.Health > 0 then
+                        if not espObjects[player] then
+                            local h = Instance.new("Highlight")
+                            h.FillColor = S.rainbowesp and Color3.fromHSV(tick()%5/5,1,1) or Color3.fromRGB(255, 80, 80)
+                            h.OutlineColor = Color3.fromRGB(255, 255, 255)
+                            h.FillTransparency = 0.4
+                            h.Parent = player.Character
+                            espObjects[player] = h
+                        end
+                    end
+                end
+            end
+        else
+            for k, v in pairs(espObjects) do
+                pcall(function() v:Destroy() end)
+                espObjects[k] = nil
+            end
+        end
+        task.wait(0.5)
+    end
+end)
 
-local musicSound
-task.spawn(function() while alive do if S.musicplayer then if not musicSound or not musicSound.Parent then if musicSound then musicSound:Destroy() end
-    musicSound=Instance.new("Sound"); musicSound.Name="MusicPlayer"; musicSound.SoundId=S.musicID; musicSound.Looped=true; musicSound.Volume=1; musicSound.Parent=workspace; musicSound:Play()
-elseif musicSound.SoundId~=S.musicID then musicSound.SoundId=S.musicID; musicSound:Play() end
-else if musicSound then musicSound:Stop(); musicSound:Destroy(); musicSound=nil end end
+-- MUSIC PLAYER
+local music
+task.spawn(function() while alive do if S.musicplayer then
+    if not music then
+        music = Instance.new("Sound")
+        music.SoundId = S.musicID
+        music.Looped = true
+        music.Volume = 1
+        music.Parent = workspace
+        music:Play()
+    end
+else if music then music:Stop(); music:Destroy(); music = nil end end
 task.wait(1) end end)
 
-lp.Idled:Connect(function() if S.antiafk then VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end end)
+-- ANTI AFK
+lp.Idled:Connect(function()
+    if S.antiafk then
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end
+end)
 
-task.spawn(function() while alive do local char=lp.Character; local hp="?"; if char then local hum=char:FindFirstChild("Humanoid"); if hum then hp=math.floor(hum.Health) end end
-local tc=0; for _ in pairs(trappedBalls) do tc+=1 end
-stats.Text=string.format("HP: %s | Balls: %d | Trapped: %d\nGod: %s | Freeze: %s | Pet: %s | Delete: %s | Redirect: %s | Dodge: %s | ❄️Snow: %s",
-    hp,#getBalls(),tc, S.godmode and "✅" or "❌", S.freezetime and "✅" or "❌", S.ballpet and "✅" or "❌", S.deleteball and "✅" or "❌", S.ballredirect and "✅" or "❌", S.autododge and "✅" or "❌", S.snowEffect and "✅" or "❌")
-task.wait(0.5) end end)
+-- STATS
+task.spawn(function()
+    while alive do
+        local char = lp.Character
+        local hp = "?"
+        if char then
+            local hum = char:FindFirstChild("Humanoid")
+            if hum then hp = math.floor(hum.Health) end
+        end
+        stats.Text = string.format("HP: %s | Balls: %d\nSpeed: %s | Jump: %s | Dodge: %s",
+            hp, #findBalls(),
+            S.speed and "✅" or "❌",
+            S.jumppower and "✅" or "❌",
+            S.autododge and "✅" or "❌")
+        task.wait(0.5)
+    end
+end)
 
-closeB.MouseButton1Click:Connect(function() if _G.Sm1leHub then _G.Sm1leHub.Destroy() end end)
+closeB.MouseButton1Click:Connect(function()
+    if _G.Sm1leHub then _G.Sm1leHub.Destroy() end
+end)
 
 _G.Sm1leHub = {
     Destroy = function()
-        alive=false; for k in pairs(S) do if type(S[k])=="boolean" then S[k]=false end end
-        stopAllMovement(); stopSnow()
+        alive = false
+        for k in pairs(S) do if type(S[k]) == "boolean" then S[k] = false end end
+        stopSnow()
         if gui then gui:Destroy() end
-        if godPart then godPart:Destroy() end
-        if deletePart then deletePart:Destroy() end
-        if redirectPart then redirectPart:Destroy() end
-        if freezePart then freezePart:Destroy() end
-        if perfectPart then perfectPart:Destroy() end
-        if perfectRing then perfectRing:Destroy() end
         if auraBillboard then auraBillboard:Destroy() end
-        if musicSound then musicSound:Stop(); musicSound:Destroy() end
-        for ball,_ in pairs(trappedBalls) do pcall(function() if ball and ball.Parent then ball.Anchored=false end end) end
-        table.clear(trappedBalls)
-        for _,v in pairs(espObjects) do pcall(function() v:Destroy() end) end; table.clear(espObjects)
-        _G.Sm1leHub=nil
+        if music then music:Stop(); music:Destroy() end
+        for _, v in pairs(espObjects) do pcall(function() v:Destroy() end) end; table.clear(espObjects)
+        _G.Sm1leHub = nil
     end
 }
